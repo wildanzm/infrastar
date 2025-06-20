@@ -3,7 +3,7 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/ui/Navbar';
 import { type SharedData } from '@/types';
-import { usePage } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { FaRoad, FaUsers } from 'react-icons/fa';
 import { TbMessageReportFilled } from 'react-icons/tb';
 
@@ -12,7 +12,7 @@ export default function Welcome() {
 
     return (
         <>
-            <Navbar />
+            <Navbar auth={auth} />
             {/* hero */}
             <div className="flex flex-col justify-center px-[7%] py-36">
                 <div className="flex items-center justify-between gap-10 space-x-5">
