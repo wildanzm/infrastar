@@ -14,6 +14,19 @@ class ReportController extends Controller
     {
         return Inertia::render('form');
     }
+    // ReportController.php
+    public function reportCount(Request $request)
+    {
+        $lat = $request->query('latitude');
+        $lng = $request->query('longitude');
+
+        $count = Report::where('latitude', $lat)
+            ->where('longitude', $lng)
+            ->count();
+
+        return response()->json(['count' => $count]);
+    }
+
 
     public function store(Request $request)
     {
