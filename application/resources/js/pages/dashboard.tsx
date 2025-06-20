@@ -1,35 +1,45 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { useState } from 'react';
+import Analytics from '../components/Analytics';
+import Dashboard from '../components/Dashboard';
+import Header from '../components/Header';
+import Map from '../components/Map';
+import Reports from '../components/Reports';
+import Settings from '../components/Settings';
+import Sidebar from '../components/Sidebar';
+import Users from '../components/Users';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-];
+function DashboardPage() {
+    const [activeTab, setActiveTab] = useState('dashboard');
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-export default function Dashboard() {
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'dashboard':
+                return <Dashboard />;
+            case 'reports':
+                return <Reports />;
+            case 'analytics':
+                return <Analytics />;
+            case 'map':
+                return <Map />;
+            case 'users':
+                return <Users />;
+            case 'settings':
+                return <Settings />;
+            default:
+                return <Dashboard />;
+        }
+    };
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+        <div className="flex min-h-screen bg-gray-50">
+            <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
+            <div className={`flex flex-1 flex-col transition-all duration-300 ${sidebarCollapsed ? '' : 'ml-64'}`}>
+                <Header sidebarCollapsed={sidebarCollapsed} setSidebarCollapsed={setSidebarCollapsed} />
+                <main className="flex-1 overflow-auto p-6">{renderContent()}</main>
             </div>
-        </AppLayout>
+        </div>
     );
 }
+
+export default DashboardPage;
