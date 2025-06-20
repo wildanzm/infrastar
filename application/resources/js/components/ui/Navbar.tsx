@@ -1,4 +1,5 @@
 import { Button } from "./button";
+import { Link } from "@inertiajs/react";
 
 const Navbar = () => {
   return (
@@ -13,8 +14,12 @@ const Navbar = () => {
         <a href="#">Feature</a>
       </div>
       <div className="space-x-2">
-        <Button className="text-lg">Masuk</Button>
-        <Button className="bg-white text-primary border border-primary hover:text-white text-lg">Daftar</Button>
+        <Link href="login">
+          <Button className="text-lg">Masuk</Button>
+        </Link>
+        <Link href="register">
+          <Button className="bg-white text-primary border border-primary hover:text-white text-lg">Daftar</Button>
+        </Link>
       </div>
     </nav>
   );
