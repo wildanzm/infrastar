@@ -23,6 +23,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('form');
     })->name('reports.create');
     Route::post('/report-form', [ReportController::class, 'store'])->name('reports.store');
+    // routes/web.php
+    Route::get('/report-count', [ReportController::class, 'reportCount']);
 });
 
 require __DIR__ . '/settings.php';
