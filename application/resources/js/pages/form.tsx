@@ -69,7 +69,7 @@ const ReportForm = () => {
 
     return (
         <div className="mx-auto max-w-2xl space-y-4 p-6">
-            <h2 className="text-2xl font-bold text-gray-800">Buat Laporan Kerusakan</h2>
+            <h2 className="text-3xl font-bold text-foreground">Buat Laporan Kerusakan</h2>
 
             <MapContainer center={position} zoom={15} style={{ height: '300px', width: '100%' }}>
                 <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -81,7 +81,7 @@ const ReportForm = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block font-medium">Foto</label>
+                    <label className="block text-lg font-bold">Foto</label>
                     <input
                         type="file"
                         accept="image/*"
@@ -95,10 +95,10 @@ const ReportForm = () => {
                 </div>
 
                 <div>
-                    <label className="block font-medium">Jenis Kerusakan</label>
+                    <label className="block text-lg font-bold">Jenis Kerusakan</label>
                     <input
                         type="text"
-                        className="w-full border p-2"
+                        className="w-full rounded-md border p-2 ring-primary"
                         value={data.damage_type}
                         onChange={(e) => setData('damage_type', e.target.value)}
                     />
@@ -106,12 +106,12 @@ const ReportForm = () => {
                 </div>
 
                 <div>
-                    <label className="block font-medium">Skor Keparahan (1–10)</label>
+                    <label className="block text-lg font-bold">Skor Keparahan (1–10)</label>
                     <input
                         type="number"
                         min="1"
                         max="10"
-                        className="w-full border p-2"
+                        className="w-full rounded-md border p-2 ring-primary"
                         value={data.severity_score}
                         onChange={(e) => setData('severity_score', e.target.value)}
                     />
@@ -119,12 +119,12 @@ const ReportForm = () => {
                 </div>
 
                 <div>
-                    <label className="block font-medium">Skor Urgensi (1–10)</label>
+                    <label className="block text-lg font-bold">Skor Urgensi (1–10)</label>
                     <input
                         type="number"
                         min="1"
                         max="10"
-                        className="w-full border p-2"
+                        className="w-full rounded-md border p-2 ring-primary"
                         value={data.urgency_score}
                         onChange={(e) => setData('urgency_score', e.target.value)}
                     />
@@ -134,7 +134,7 @@ const ReportForm = () => {
                 <input type="hidden" value={data.latitude} name="latitude" />
                 <input type="hidden" value={data.longitude} name="longitude" />
 
-                <button type="submit" disabled={processing} className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                <button type="submit" disabled={processing} className="rounded bg-primary px-4 py-2 text-white hover:bg-primary/80">
                     Kirim Laporan
                 </button>
             </form>
