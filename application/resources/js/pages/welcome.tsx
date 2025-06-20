@@ -3,7 +3,7 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/ui/Navbar';
 import { type SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, usePage, Link } from '@inertiajs/react';
 import { FaRoad, FaUsers } from 'react-icons/fa';
 import { TbMessageReportFilled } from 'react-icons/tb';
 
@@ -12,6 +12,7 @@ export default function Welcome() {
 
     return (
         <>
+            <Head title='Infrastar' />
             <Navbar auth={auth} />
             {/* hero */}
             <div className="flex flex-col justify-center px-[7%] py-36">
@@ -24,7 +25,9 @@ export default function Welcome() {
                             Laporkan jalan rusak di sekitarmu dengan cepat dan mudah. Setiap laporanmu adalah langkah menuju infrastruktur yang lebih
                             baik.
                         </p>
-                        <Button className="px-10 py-6 text-xl">Laporkan Sekarang</Button>
+                        <Link href='/report-form'>
+                            <Button className="px-10 py-6 text-xl">Laporkan Sekarang</Button>
+                        </Link>
                     </div>
                 </div>
                 <div className="mt-20 flex items-center justify-center space-x-20">

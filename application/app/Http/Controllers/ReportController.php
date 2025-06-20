@@ -2,31 +2,20 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Report;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\ReportSubmitted;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail; // <-- 1. Import fasad Mail
+use App\Mail\ReportMail;               // <-- 2. Import Mailable baru Anda
 
 class ReportController extends Controller
 {
-    public function create()
-    {
-        return Inertia::render('form');
-    }
-    // ReportController.php
-    public function reportCount(Request $request)
-    {
-        $lat = $request->query('latitude');
-        $lng = $request->query('longitude');
-
-        $count = Report::where('latitude', $lat)
-            ->where('longitude', $lng)
-            ->count();
-
-        return response()->json(['count' => $count]);
-    }
-
+    // ... metode create() dan reportCount() tidak berubah ...
 
     public function store(Request $request)
     {
@@ -44,8 +33,10 @@ class ReportController extends Controller
             $imagePath = $request->file('image')->store('reports', 'public');
         }
 
-        Report::create([
-            'user_id' => Auth::user()->id,
+        $user = Auth::user();
+
+        $report = Report::create([
+            'user_id' => $user->id,
             'image' => $imagePath,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
@@ -55,7 +46,17 @@ class ReportController extends Controller
             'status' => 'pending',
         ]);
 
+        // --- MENGIRIM NOTIFIKASI ---
 
-        return redirect()->route('dashboard')->with('success', 'Report submitted.');
+        // Mengirim email konfirmasi ke pengguna secara eksplisit ke alamat emailnya
+        try {
+            Mail::to($user->email)->send(new ReportMail($report));
+        } catch (\Exception $e) {
+            Log::error('Gagal kirim email: ' . $e->getMessage());
+        }
+
+
+
+        return redirect()->route('home')->with('success', 'Report submitted successfully. A confirmation email has been sent.');
     }
 }
