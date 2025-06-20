@@ -7,7 +7,6 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AuthLayout from '@/layouts/auth-layout';
 
 type RegisterForm = {
     name: string;
@@ -32,9 +31,11 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout title="Create an account" description="Enter your details below to create your account">
+        <div className="flex h-screen items-center justify-center">
             <Head title="Register" />
-            <form className="flex flex-col gap-6" onSubmit={submit}>
+            <form className="flex flex-col gap-6 rounded-lg border px-10 py-10 shadow" onSubmit={submit}>
+                <h1 className="text-center text-3xl font-bold">Daftar</h1>
+                <p className="-mt-5 text-center">Silahkan daftar terlebih dahulu</p>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
                         <Label htmlFor="name">Name</Label>
@@ -49,6 +50,7 @@ export default function Register() {
                             onChange={(e) => setData('name', e.target.value)}
                             disabled={processing}
                             placeholder="Full name"
+                            className="w-96"
                         />
                         <InputError message={errors.name} className="mt-2" />
                     </div>
@@ -114,6 +116,6 @@ export default function Register() {
                     </TextLink>
                 </div>
             </form>
-        </AuthLayout>
+        </div>
     );
 }
