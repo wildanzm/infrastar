@@ -1,19 +1,24 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
-Route::get('/form', function () {
-    return Inertia::render('form');
-})->name('form');
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    //route form
+    Route::get('/report-form', function () {
+        return Inertia::render('form');
+    })->name('reports.create');
+    Route::post('/report-form', [ReportController::class, 'store'])->name('reports.store');
 });
 
 require __DIR__ . '/settings.php';
