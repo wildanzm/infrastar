@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Comments;
+use App\Models\Notification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
