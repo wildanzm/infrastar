@@ -27,5 +27,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/report-count', [ReportController::class, 'reportCount']);
 });
 
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
