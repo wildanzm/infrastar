@@ -7,6 +7,7 @@ import Reports from '../components/Reports';
 import Settings from '../components/Settings';
 import Sidebar from '../components/Sidebar';
 import Users from '../components/Users';
+import { Head } from '@inertiajs/react';
 
 function DashboardPage() {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -32,13 +33,16 @@ function DashboardPage() {
     };
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
-            <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
-            <div className={`flex flex-1 flex-col transition-all duration-300 ${sidebarCollapsed ? '' : 'ml-64'}`}>
-                <Header sidebarCollapsed={sidebarCollapsed} setSidebarCollapsed={setSidebarCollapsed} />
-                <main className="flex-1 overflow-auto p-6">{renderContent()}</main>
+        <>
+            <Head title='Dashboard' />
+            <div className="flex min-h-screen bg-gray-50">
+                <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} />
+                <div className={`flex flex-1 flex-col transition-all duration-300 ${sidebarCollapsed ? '' : 'ml-64'}`}>
+                    <Header sidebarCollapsed={sidebarCollapsed} setSidebarCollapsed={setSidebarCollapsed} />
+                    <main className="flex-1 overflow-auto p-6">{renderContent()}</main>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
