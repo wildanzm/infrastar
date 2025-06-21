@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import Chart from './ui/Chart';
 import RecentReports from './ui/RecentReports';
 
-// 1. Definisikan tipe data yang akan kita terima dari API
 type DashboardStats = {
     newThisWeek: number;
     resolvedThisWeek: number;
@@ -19,7 +18,7 @@ type TopLocation = {
 };
 
 type ChartDataItem = {
-    name: string; // Misal: 'Jan', 'Feb'
+    name: string;
     total: number;
 };
 
@@ -33,7 +32,7 @@ type RecentReportItem = {
         id: number;
         name: string;
     };
-    priority?: 'high' | 'medium' | 'low'; // Jadikan opsional karena tidak ada di API
+    priority?: 'high' | 'medium' | 'low';
 };
 
 type DashboardData = {
@@ -44,12 +43,10 @@ type DashboardData = {
 };
 
 const Dashboard: React.FC = () => {
-    // 2. Siapkan state untuk data, loading, dan error
     const [data, setData] = useState<DashboardData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // 3. Gunakan useEffect untuk fetch data saat komponen dimuat
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -71,9 +68,8 @@ const Dashboard: React.FC = () => {
         };
 
         fetchData();
-    }, []); // Array dependensi kosong agar hanya berjalan sekali
+    }, []);
 
-    // 4. Tampilkan status loading atau error
     if (isLoading) {
         return <div className="p-6 text-center">Memuat data dashboard...</div>;
     }
@@ -86,7 +82,6 @@ const Dashboard: React.FC = () => {
         return <div className="p-6 text-center">Data tidak tersedia.</div>;
     }
 
-    // 5. Render UI dengan data yang sudah di-fetch
     return (
         <div className="space-y-6">
             <div>
@@ -96,11 +91,9 @@ const Dashboard: React.FC = () => {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2">
-                    {/* Kirim data chartData ke komponen anak */}
                     <Chart data={data.chartData} />
                 </div>
                 <div>
-                    {/* Kirim data recentReports ke komponen anak */}
                     <RecentReports reports={data.recentReports} />
                 </div>
             </div>
@@ -114,7 +107,6 @@ const Dashboard: React.FC = () => {
                     <div className="space-y-3">
                         <div className="flex justify-between">
                             <span className="text-gray-600">Average</span>
-                            {/* Gunakan data dinamis */}
                             <span className="font-semibold">{data.stats.avgResponseTime} hours</span>
                         </div>
                         <div className="h-2 w-full rounded-full bg-gray-200">
@@ -129,7 +121,6 @@ const Dashboard: React.FC = () => {
                         <h3 className="text-lg font-semibold text-gray-900">Top Locations</h3>
                         <MapPin className="h-5 w-5 text-gray-400" />
                     </div>
-                    {/* Gunakan .map untuk render data dinamis */}
                     <div className="space-y-3">
                         {data.topLocations.map((loc) => (
                             <div key={loc.location} className="flex items-center justify-between">
