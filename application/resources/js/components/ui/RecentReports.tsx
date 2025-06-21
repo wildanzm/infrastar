@@ -1,42 +1,50 @@
+// src/components/ui/RecentReports.tsx
+
 import React from "react";
 import { Clock, MapPin, AlertTriangle } from "lucide-react";
 
-const RecentReports: React.FC = () => {
-  const reports = [
-    {
-      id: "001",
-      location: "Main Street & 5th Ave",
-      type: "Pothole",
-      priority: "high",
-      time: "2 hours ago",
-      status: "pending",
-    },
-    {
-      id: "002",
-      location: "Highway 101, Mile 45",
-      type: "Crack",
-      priority: "medium",
-      time: "4 hours ago",
-      status: "in-progress",
-    },
-    {
-      id: "003",
-      location: "Oak Avenue Bridge",
-      type: "Surface Damage",
-      priority: "high",
-      time: "6 hours ago",
-      status: "resolved",
-    },
-    {
-      id: "004",
-      location: "Industrial Blvd",
-      type: "Pothole",
-      priority: "low",
-      time: "8 hours ago",
-      status: "pending",
-    },
-  ];
+// 1. Definisikan tipe untuk props yang diterima
+type RecentReportItem = {
+    id: number;
+    title: string;
+    location: string;
+    status: 'pending' | 'in-progress' | 'resolved';
+    created_at: string;
+    user: {
+        id: number;
+        name: string;
+    };
+    priority?: 'high' | 'medium' | 'low';
+};
 
+interface RecentReportsProps {
+  reports: RecentReportItem[];
+}
+
+// Helper untuk mengubah string tanggal menjadi format "time ago" sederhana
+// Anda bisa menggunakan library seperti `date-fns` untuk yang lebih canggih
+const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + " years ago";
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + " months ago";
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + " days ago";
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + " hours ago";
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + " minutes ago";
+    return Math.floor(seconds) + " seconds ago";
+}
+
+// 2. Terima 'reports' sebagai prop dan hapus data statis
+const RecentReports: React.FC<RecentReportsProps> = ({ reports }) => {
+    
+  // Fungsi helper warna bisa tetap di sini
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
@@ -71,6 +79,7 @@ const RecentReports: React.FC = () => {
       </div>
 
       <div className="space-y-4">
+        {/* 3. Gunakan 'reports' dari props untuk me-render list */}
         {reports.map((report) => (
           <div
             key={report.id}
@@ -79,18 +88,19 @@ const RecentReports: React.FC = () => {
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-medium text-gray-900">#{report.id}</span>
-                <span
-                  className={`px-2 py-1 text-xs rounded-full ${getPriorityColor(report.priority)}`}
-                >
-                  {report.priority}
-                </span>
+                {/* Tampilkan priority jika ada */}
+                {report.priority && (
+                    <span className={`px-2 py-1 text-xs rounded-full ${getPriorityColor(report.priority)}`}>
+                        {report.priority}
+                    </span>
+                )}
               </div>
               <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(report.status)}`}>
-                {report.status}
+                {report.status.replace('-', ' ')}
               </span>
             </div>
 
-            <p className="text-sm font-medium text-gray-900 mb-1">{report.type}</p>
+            <p className="text-sm font-medium text-gray-900 mb-1">{report.title}</p>
             <div className="flex items-center text-xs text-gray-500 space-x-4">
               <div className="flex items-center space-x-1">
                 <MapPin className="w-3 h-3" />
@@ -98,7 +108,8 @@ const RecentReports: React.FC = () => {
               </div>
               <div className="flex items-center space-x-1">
                 <Clock className="w-3 h-3" />
-                <span>{report.time}</span>
+                {/* Gunakan data 'created_at' yang sudah diformat */}
+                <span>{formatTimeAgo(report.created_at)}</span>
               </div>
             </div>
           </div>
