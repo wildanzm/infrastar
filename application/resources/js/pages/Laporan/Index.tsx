@@ -1,10 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { Clock, MapPin, PlusCircle } from 'lucide-react';
 
-// ===================================================================
-// Tipe Data & Data Dummy (Untuk Development UI)
-// ===================================================================
-
 type Report = {
     id: number;
     title: string;
@@ -13,47 +9,18 @@ type Report = {
     created_at: string;
 };
 
-// Data dummy ini akan kita gunakan untuk mengisi UI
-const dummyReportsData: Report[] = [
-    {
-        id: 1,
-        title: 'Lubang di Perempatan Jalan Kartini',
-        location: 'Jl. Kartini, Kota Cirebon',
-        status: 'Selesai',
-        created_at: '2025-06-18T10:00:00.000000Z',
-    },
-    {
-        id: 2,
-        title: 'Retak parah di flyover',
-        location: 'Flyover Pegambiran, Cirebon',
-        status: 'Dalam Proses',
-        created_at: '2025-06-20T14:30:00.000000Z',
-    },
-    {
-        id: 3,
-        title: 'Lampu jalan mati total',
-        location: 'Jl. Tuparev, dekat CSB Mall',
-        status: 'Tertunda',
-        created_at: '2025-06-21T08:15:00.000000Z',
-    },
-];
-
-// Objek paginator dummy
-const dummyPaginator = {
-    data: dummyReportsData,
-    links: [
-        { url: null, label: '&laquo; Previous', active: false },
-        { url: '#', label: '1', active: true },
-        { url: null, label: 'Next &raquo;', active: false },
-    ],
-    from: 1,
-    to: 3,
-    total: 3,
+type Paginator<T> = {
+    data: T[];
+    links: { url: string | null; label: string; active: boolean }[];
+    from: number;
+    to: number;
+    total: number;
 };
 
-// ===================================================================
-// Helper Functions & Komponen Utama
-// ===================================================================
+type LaporanPageProps = {
+    reports: Paginator<Report>;
+};
+
 
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
@@ -73,10 +40,7 @@ const getStatusPill = (status: Report['status']) => {
     return <span className={`${baseClasses} ${colorClasses[status]}`}>{status}</span>;
 };
 
-// Komponen utama halaman laporan
-const LaporanPage = (props: any) => {
-    // Gunakan data asli dari props jika ada, jika tidak, gunakan data dummy
-    const reports = props.reports || dummyPaginator;
+const LaporanPage = ({ reports }: LaporanPageProps) => {
 
     return (
         <>
@@ -92,7 +56,6 @@ const LaporanPage = (props: any) => {
                     </header>
 
                     <div className="mt-12">
-                        {/* Kondisi jika tidak ada laporan */}
                         {reports.data.length === 0 ? (
                             <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
                                 <PlusCircle className="mx-auto h-12 w-12 text-gray-400" />
@@ -100,7 +63,7 @@ const LaporanPage = (props: any) => {
                                 <p className="mt-1 text-sm text-gray-500">Mulai berkontribusi dengan membuat laporan pertama Anda.</p>
                                 <div className="mt-6">
                                     <Link
-                                        href={route('reports.create')} // Ganti dengan nama route untuk form laporan Anda
+                                        href={route('reports.create')}
                                         className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                                     >
                                         Buat Laporan Baru
@@ -108,7 +71,6 @@ const LaporanPage = (props: any) => {
                                 </div>
                             </div>
                         ) : (
-                            // Tampilan jika ada laporan
                             <div className="space-y-6">
                                 {reports.data.map((report: Report) => (
                                     <div
@@ -136,7 +98,6 @@ const LaporanPage = (props: any) => {
                                     </div>
                                 ))}
 
-                                {/* Komponen Paginasi */}
                                 <nav className="mt-10 flex items-center justify-between border-t border-gray-200 px-4 pt-6 sm:px-0">
                                     <div className="hidden sm:block">
                                         <p className="text-sm text-gray-700">
@@ -150,11 +111,10 @@ const LaporanPage = (props: any) => {
                                             <Link
                                                 key={index}
                                                 href={link.url || '#'}
-                                                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${
-                                                    link.active
+                                                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${link.active
                                                         ? 'bg-blue-600 text-white'
                                                         : 'text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50'
-                                                } ${!link.url ? 'cursor-not-allowed text-gray-400 ring-gray-300' : ''}`}
+                                                    } ${!link.url ? 'cursor-not-allowed text-gray-400 ring-gray-300' : ''}`}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                             />
                                         ))}
