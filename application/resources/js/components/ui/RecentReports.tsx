@@ -44,7 +44,7 @@ const RecentReports: React.FC<RecentReportsProps> = ({ reports }) => {
                 return 'text-green-600 bg-green-50';
             case 'Dalam Proses':
                 return 'text-blue-600 bg-blue-50';
-            case 'Pending':
+            case 'Tertunda':
                 return 'text-yellow-600 bg-yellow-50';
             default:
                 return 'text-gray-600 bg-gray-50';
