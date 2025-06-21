@@ -5,7 +5,6 @@ import { FormEventHandler } from 'react';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -42,7 +41,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                 <p className="-mt-5 text-center">Silahkan masuk terlebih dahulu</p>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
+                        <Label htmlFor="email">Email</Label>
                         <Input
                             id="email"
                             type="email"
@@ -52,7 +51,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             autoComplete="email"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
-                            placeholder="email@example.com"
+                            placeholder="Masukan email"
                             className="w-96"
                         />
                         <InputError message={errors.email} />
@@ -63,7 +62,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             <Label htmlFor="password">Password</Label>
                             {canResetPassword && (
                                 <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
-                                    Forgot password?
+                                    Lupa Password?
                                 </TextLink>
                             )}
                         </div>
@@ -75,32 +74,21 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             autoComplete="current-password"
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
-                            placeholder="Password"
+                            placeholder="Masukan password"
                         />
                         <InputError message={errors.password} />
                     </div>
 
-                    <div className="flex items-center space-x-3">
-                        <Checkbox
-                            id="remember"
-                            name="remember"
-                            checked={data.remember}
-                            onClick={() => setData('remember', !data.remember)}
-                            tabIndex={3}
-                        />
-                        <Label htmlFor="remember">Remember me</Label>
-                    </div>
-
                     <Button type="submit" className="mt-4 w-full bg-primary" tabIndex={4} disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Log in
+                        Masuk
                     </Button>
                 </div>
 
                 <div className="text-center text-sm text-muted-foreground">
-                    Don't have an account?{' '}
+                    Belum punya akun?{' '}
                     <TextLink href={route('register')} tabIndex={5}>
-                        Sign up
+                        Daftar Akun
                     </TextLink>
                 </div>
             </form>

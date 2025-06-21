@@ -48,9 +48,6 @@ const Header: React.FC<HeaderProps> = ({ sidebarCollapsed, setSidebarCollapsed }
                     <div className="relative">
                         <button className="relative rounded-lg p-2 transition-colors hover:bg-gray-100">
                             <Bell className="h-5 w-5 text-gray-600" />
-                            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                                3
-                            </span>
                         </button>
                     </div>
 

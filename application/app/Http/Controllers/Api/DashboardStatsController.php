@@ -18,15 +18,12 @@ class DashboardStatsController extends Controller
             $startOfWeek = Carbon::now()->startOfWeek();
             $endOfWeek = Carbon::now()->endOfWeek();
 
-            // Statistik dasar
             $newReportsThisWeek = Report::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
             $resolvedReportsThisWeek = Report::where('status', 'resolved')
                 ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
                 ->count();
             $inProgressReports = Report::where('status', 'in-progress')->count();
 
-            // Top Locations (Fixed: Menggabungkan lat/lng untuk grouping)
-            // Di sini kita membuat kolom 'location' secara virtual untuk grouping
             $topLocations = Report::select(
                 DB::raw("latitude || ', ' || longitude as location"),
                 DB::raw('count(*) as total')
@@ -38,7 +35,6 @@ class DashboardStatsController extends Controller
                 ->limit(3)
                 ->get();
 
-            // Average Response Time (Fixed: Dihitung di PHP agar DB-agnostic)
             $resolvedReportsForTime = Report::where('status', 'resolved')->select('created_at', 'updated_at')->get();
             $totalHours = 0;
             if ($resolvedReportsForTime->isNotEmpty()) {
@@ -52,36 +48,39 @@ class DashboardStatsController extends Controller
                 $averageResponseTime = 0;
             }
 
-            // Chart Data (Fixed: Format tanggal DB-agnostic)
             $monthFormat = $dbDriver === 'mysql' ? 'DATE_FORMAT(created_at, "%b")' : 'strftime("%b", created_at)';
-
             $reportsPerMonth = Report::select(
                 DB::raw($monthFormat . ' as name'),
                 DB::raw('count(*) as total')
             )
                 ->where('created_at', '>=', Carbon::now()->subYear())
                 ->groupBy('name')
-                ->orderByRaw('MIN(created_at)') // Urutkan berdasarkan bulan
+                ->orderByRaw('MIN(created_at)')
                 ->get();
 
-            // Recent Reports (Fixed: Menyesuaikan struktur data dengan frontend)
-            $recentReports = Report::with('user:id,name')
+            $recentReports = Report::with('user:id,name') 
                 ->latest()
                 ->limit(5)
                 ->get()
                 ->map(function ($report) {
-                    // Membuat struktur yang sesuai dengan tipe `RecentReportItem` di frontend
+                    $priority = 'Rendah';
+                    if ($report->urgency_score > 75) {
+                        $priority = 'Tinggi';
+                    } elseif ($report->urgency_score > 40) {
+                        $priority = 'Sedang';
+                    }
+
                     return [
                         'id' => $report->id,
-                        'title' => $report->damage_type ?? 'Laporan Tanpa Judul', // Menggunakan damage_type sebagai title
-                        'location' => $report->latitude . ', ' . $report->longitude,
-                        'status' => $report->status,
+                        'title' => $report->damage_type ?? 'Laporan Tanpa Judul',
+                        'location' => $report->latitude . ', ' . $report->longitude, // Lokasi daerahnya
+                        'status' => $report->status, // Statusnya
                         'created_at' => $report->created_at->toIso8601String(),
-                        'user' => $report->user,
+                        'user' => $report->user, // Nama pelapor ada di dalam objek user
+                        'priority' => $priority, // Prioritasnya
                     ];
                 });
 
-            // Final JSON Response
             return response()->json([
                 'stats' => [
                     'newThisWeek' => $newReportsThisWeek,
@@ -94,9 +93,7 @@ class DashboardStatsController extends Controller
                 'recentReports' => $recentReports,
             ]);
         } catch (\Exception $e) {
-            // Logging error untuk debugging di server
             Log::error('Dashboard Stats Error: ' . $e->getMessage());
-            // Mengirim respons error yang jelas
             return response()->json([
                 'message' => 'Gagal memuat statistik dashboard.',
                 'error' => $e->getMessage(),
