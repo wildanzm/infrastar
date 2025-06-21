@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Report;
 use Inertia\Inertia;
+use App\Models\Report;
+use App\Mail\ReportMail;
+use App\Models\Comments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ReportMail;
 use App\Notifications\ReportSubmitted;
 use Illuminate\Support\Facades\Notification;
 
@@ -72,6 +73,13 @@ class ReportController extends Controller
             'status' => 'Menunggu',
         ]);
 
+        Comments::create([
+            'report_id' => $report->id,
+            'user_id' => Auth::id(),
+            'comment_text' => $request->description,
+        ]);
+
+
 
         try {
             $user = Auth::user();
@@ -80,6 +88,6 @@ class ReportController extends Controller
             Log::error('Gagal mengirim email: ' . $e->getMessage());
         }
 
-        return redirect()->route('dashboard')->with('success', 'Report submitted successfully.');
+        return redirect()->route('home')->with('success', 'Report submitted successfully.');
     }
 }

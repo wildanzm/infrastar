@@ -21,7 +21,6 @@ const Navbar = ({ auth }: NavbarProps) => {
         router.post(route('logout'));
     };
 
-    // close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -34,20 +33,17 @@ const Navbar = ({ auth }: NavbarProps) => {
 
     return (
         <nav className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between bg-white px-[7%] py-4 shadow">
-            {/* Logo */}
             <div className="flex items-center gap-2">
                 <img src="logo.png" alt="" width={40} />
                 <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Infrastar</h1>
             </div>
 
-            {/* Desktop Menu */}
             <div className="hidden gap-6 text-lg font-semibold text-foreground md:flex">
                 <a href="#">Home</a>
                 <a href="#">About</a>
                 <a href="#">Feature</a>
             </div>
 
-            {/* Auth / Dropdown */}
             <div className="hidden items-center md:flex">
                 {!auth.user ? (
                     <div className="space-x-2">
@@ -84,12 +80,10 @@ const Navbar = ({ auth }: NavbarProps) => {
                 )}
             </div>
 
-            {/* Mobile Menu Icon */}
             <div className="md:hidden">
                 <button onClick={() => setMobileOpen(!mobileOpen)}>{mobileOpen ? <X size={24} /> : <Menu size={24} />}</button>
             </div>
 
-            {/* Mobile Menu Panel */}
             {mobileOpen && (
                 <div className="absolute top-full left-0 z-40 flex w-full flex-col gap-4 border-t bg-white px-6 py-4 shadow-md md:hidden">
                     <a href="#">Home</a>

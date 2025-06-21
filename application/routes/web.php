@@ -25,8 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('form');
     })->name('reports.create');
     Route::post('/report-form', [ReportController::class, 'storeWithPrediction'])->name('reports.store');
-    // routes/web.php
-    Route::get('/report-count', [ReportController::class, 'reportCount']);
+    Route::get('/report-count', [ReportController::class, 'reportCount'])->name('report.count');
 });
 
 
