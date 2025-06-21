@@ -33,10 +33,6 @@ class ReportController extends Controller
         return response()->json(['count' => $count]);
     }
 
-    /**
-     * Store a new report by getting a prediction from the ML service first.
-     * This is an alternative approach where the backend communicates with the ML service.
-     */
     public function storeWithPrediction(Request $request)
     {
         $request->validate([
@@ -48,12 +44,12 @@ class ReportController extends Controller
         $imagePath = $request->file('image')->store('reports', 'public');
         $base64Image = base64_encode(file_get_contents($request->file('image')->getRealPath()));
 
-        // Ambil jumlah laporan di lokasi yang sama
+
         $reportCount = Report::where('latitude', $request->latitude)
             ->where('longitude', $request->longitude)
             ->count();
 
-        // Panggil service prediksi AI
+
         $predictionResponse = Http::post('http://localhost:5000/predict', [
             'image_base64' => $base64Image,
             'num_similar_reports' => $reportCount,
@@ -76,7 +72,7 @@ class ReportController extends Controller
             'status' => 'pending',
         ]);
 
-        // Optional: Kirim email notifikasi
+
         try {
             $user = Auth::user();
             Mail::to($user->email)->send(new ReportMail($report));
