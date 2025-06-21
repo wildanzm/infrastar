@@ -188,13 +188,13 @@ const Reports: React.FC = () => {
                                         {report.status === 'Menunggu' && (
                                             <>
                                                 <button
-                                                    className="mr-2 text-xs text-blue-600 hover:underline"
+                                                    className="mr-2 rounded-md bg-blue-600 px-2 py-1 text-sm text-white hover:bg-blue-700"
                                                     onClick={() => updateReportStatus(report.id, 'Dalam Proses')}
                                                 >
                                                     Proses
                                                 </button>
                                                 <button
-                                                    className="text-xs text-green-600 hover:underline"
+                                                    className="rounded-md bg-green-600 px-2 py-1 text-sm text-white hover:bg-green-700"
                                                     onClick={() => updateReportStatus(report.id, 'Selesai')}
                                                 >
                                                     Selesai
@@ -204,7 +204,7 @@ const Reports: React.FC = () => {
 
                                         {report.status === 'Dalam Proses' && (
                                             <button
-                                                className="text-xs text-green-600 hover:underline"
+                                                className="rounded-md bg-green-600 px-2 py-1 text-sm text-white hover:underline"
                                                 onClick={() => updateReportStatus(report.id, 'resolved')}
                                             >
                                                 Selesai
