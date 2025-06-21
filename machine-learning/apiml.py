@@ -27,10 +27,6 @@ severity_mapping = {}
 
 
 def load_all_models():
-    """
-    Memuat semua model machine learning dan file konfigurasi ke dalam memori.
-    Fungsi ini dijalankan sekali saat server pertama kali dimulai.
-    """
     global model_classifier, model_urgency, class_names, severity_mapping
     
     print("Mencoba memuat model dan file konfigurasi...")
@@ -59,15 +55,6 @@ def load_all_models():
 
 
 def preprocess_image_from_base64(b64_string: str) -> np.ndarray:
-    """
-    Mengubah string base64 menjadi array NumPy yang siap digunakan oleh model.
-    
-    Args:
-        b64_string: String gambar dalam format base64.
-
-    Returns:
-        Array NumPy yang sudah diproses.
-    """
     if "," in b64_string:
         b64_string = b64_string.split(',')[1]
         
@@ -82,8 +69,6 @@ def preprocess_image_from_base64(b64_string: str) -> np.ndarray:
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    """Endpoint utama untuk menerima data gambar dan mengembalikan hasil prediksi."""
-    
     if not request.is_json:
         return jsonify({"success": False, "error": "Input tidak valid, format harus JSON."}), 400
     

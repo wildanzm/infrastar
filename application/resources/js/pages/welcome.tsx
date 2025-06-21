@@ -12,20 +12,19 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title="Infrastar" />
+            <Head title="Home" />
             <Navbar auth={auth} />
-            {/* hero */}
             <div className="flex flex-col justify-center px-[7%] py-36">
                 <div className="flex flex-col items-center justify-between gap-10 space-x-5 xl:flex-row">
                     <img src="hero.png" alt="" width={580} />
                     <div>
                         <h1 className="text-lg font-bold tracking-[0.25rem] text-primary uppercase">Selamat Datang</h1>
                         <h1 className="text-6xl font-bold text-foreground max-lg:text-5xl max-md:text-4xl">
-                            Infrastar: Bersama Kita Perbaiki Negeri
+                            Infrastar Bersama Kita Perbaiki Negeri
                         </h1>
                         <p className="mt-3 mb-7 text-xl text-foreground">
-                            Laporkan jalan rusak di sekitarmu dengan cepat dan mudah. Setiap laporanmu adalah langkah menuju infrastruktur yang lebih
-                            baik.
+                            Laporkan Infrastruktur rusak di sekitarmu dengan cepat dan mudah. Setiap laporanmu adalah langkah menuju infrastruktur
+                            yang lebih baik.
                         </p>
                         <Link href="/report-form">
                             <Button className="px-10 py-6 text-xl">Laporkan Sekarang</Button>
@@ -53,14 +52,13 @@ export default function Welcome() {
                     </div>
                 </div>
             </div>
-            {/* about */}
             <div className="bg-gradient-to-br from-primary to-[#0869CA] px-[7%] py-22 text-center text-white">
                 <h1 className="text-lg font-bold tracking-[0.25rem] uppercase max-lg:text-base">About</h1>
                 <h1 className="text-5xl font-bold max-lg:text-4xl">Tentang Infrastar</h1>
                 <p className="mt-5 text-justify text-xl tracking-wide">
-                    Infrastar adalah platform digital yang memudahkan masyarakat dalam melaporkan kerusakan infrastruktur, khususnya jalan. Dengan
-                    teknologi yang sederhana namun efektif, kami menghubungkan suara warga dengan pihak berwenang agar penanganan dapat dilakukan
-                    lebih cepat dan tepat sasaran.
+                    Infrastar adalah platform digital yang memudahkan masyarakat dalam melaporkan kerusakan infrastruktur. Dengan teknologi yang
+                    sederhana namun efektif, kami menghubungkan suara warga dengan pihak berwenang agar penanganan dapat dilakukan lebih cepat dan
+                    tepat sasaran.
                 </p>
                 <div className="mt-5 flex gap-20 text-left max-lg:flex-col">
                     <img src="about.png" alt="" width={550} />
@@ -89,13 +87,12 @@ export default function Welcome() {
                                 <p className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-white font-bold text-primary">
                                     3
                                 </p>
-                                <p>Menjadi jembatan antara warga dan pemerintah dalam penyelesaian masalah jalan rusak.</p>
+                                <p>Menjadi jembatan antara warga dan pemerintah dalam penyelesaian masalah infrastruktur rusak.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {/* feature */}
             <div className="px-[7%] py-20 text-center max-lg:px-[3%]">
                 <h1 className="text-lg font-bold tracking-[0.25rem] text-primary uppercase max-lg:text-base">Feature</h1>
                 <h1 className="text-5xl font-bold text-foreground max-lg:text-4xl">Fitur Unggulan Infrastar</h1>
@@ -107,8 +104,8 @@ export default function Welcome() {
                 <div className="space-y-5 px-[5%] max-lg:px-0">
                     <FeatureContainer
                         img="report.png"
-                        header="Laporkan Jalan Rusak Secara Instan"
-                        desc="Laporkan kondisi jalan rusak hanya dalam beberapa klik. Sertakan lokasi, deskripsi, dan foto untuk memudahkan penanganan."
+                        header="Laporkan Infrastruktur Rusak Secara Instan"
+                        desc="Laporkan kondisi infrastruktur rusak hanya dalam beberapa klik. Sertakan lokasi, deskripsi, dan foto untuk memudahkan penanganan."
                     />
                     <FeatureContainerReverse
                         img="map.png"
