@@ -3,17 +3,17 @@ import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/leaflet.css';
-import { AlarmClock, BrainCircuit, Compass, FileImage, Loader2 } from 'lucide-react';
+import { FileImage, Loader2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 
-// Setup Leaflet Icon
+// Setup Leaflet Icon agar tidak error
 const DefaultIcon = L.icon({ iconUrl: icon, shadowUrl: iconShadow });
 L.Marker.prototype.options.icon = DefaultIcon;
 
 type LatLngTuple = [number, number];
 
-// Komponen helper untuk recenter peta, tidak ada perubahan
+// Komponen helper untuk recenter peta saat posisi berubah
 const RecenterMap = ({ position }: { position: LatLngTuple }) => {
     const map = useMap();
     useEffect(() => {
@@ -22,104 +22,63 @@ const RecenterMap = ({ position }: { position: LatLngTuple }) => {
     return null;
 };
 
-// Komponen Utama ReportForm yang sudah di-styling
+// Komponen Utama ReportForm
 const ReportForm = () => {
-    const [position, setPosition] = useState<LatLngTuple>([-6.2, 106.8]); // Default ke Jakarta
+    const [position, setPosition] = useState<LatLngTuple>([-6.716, 108.566]); // Default ke Cirebon
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [isPredicting, setIsPredicting] = useState(false); // State baru untuk loading prediksi AI
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Definisi state form menggunakan hook useForm dari Inertia
+    // Pastikan semua field (termasuk 'description') terdaftar di sini
     const { data, setData, post, processing, errors, reset } = useForm<{
         image: File | null;
         latitude: number;
         longitude: number;
-        damage_type: string;
-        severity_score: number;
-        urgency_score: number;
+        description: string;
     }>({
         image: null,
-        latitude: -6.2,
-        longitude: 106.8,
-        damage_type: '',
-        severity_score: 0,
-        urgency_score: 0,
+        latitude: -6.716,
+        longitude: 108.566,
+        description: '',
     });
 
-    // Ambil lokasi user saat komponen dimuat
+    // Mengambil lokasi pengguna saat komponen pertama kali dimuat
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
                 setPosition([lat, lng]);
-                setData({ ...data, latitude: lat, longitude: lng });
+                // Menggunakan callback untuk update state agar lebih aman
+                setData((currentData) => ({ ...currentData, latitude: lat, longitude: lng }));
             },
             () => {
-                console.log('Izin lokasi ditolak, menggunakan lokasi default.');
+                console.log('Izin lokasi ditolak, menggunakan lokasi default Cirebon.');
             },
         );
-    }, []); // Dependensi kosong agar hanya berjalan sekali
+    }, []); // Dependensi kosong agar hanya berjalan sekali saat mount
 
-    // Fungsi untuk prediksi AI
-    const predictFromAI = async (file: File) => {
-        setIsPredicting(true); // Mulai loading
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-            const base64 = (reader.result as string).split(',')[1];
-            const { latitude, longitude } = data;
-
-            try {
-                // Fetch report count dan prediksi AI
-                const countRes = await fetch(`/report-count?latitude=${latitude}&longitude=${longitude}`);
-                const { count } = await countRes.json();
-
-                const res = await fetch('http://localhost:5000/predict', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        image_base64: base64,
-                        num_similar_reports: count,
-                    }),
-                });
-
-                const result = await res.json();
-                if (result.success) {
-                    setData({
-                        ...data,
-                        image: file,
-                        damage_type: result.prediction_results.classification_result,
-                        severity_score: parseInt(result.prediction_results.Keparahan_Numerik),
-                        urgency_score: parseInt(result.prediction_results.urgency_prediction),
-                    });
-                } else {
-                    alert('Gagal memproses prediksi AI: ' + (result.error || 'Unknown error'));
-                }
-            } catch (err) {
-                alert('Error saat memanggil model AI: ' + err);
-            } finally {
-                setIsPredicting(false); // Selesai loading
-            }
-        };
-        reader.readAsDataURL(file);
-    };
-
-    // Handler untuk file input
+    // Handler saat ada file yang dipilih atau di-drop
     const handleFileChange = (file: File | null) => {
         if (file) {
             setImagePreview(URL.createObjectURL(file));
-            predictFromAI(file);
+            setData('image', file);
         }
     };
 
-    // Handler untuk submit form
+    // Handler saat form disubmit
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        // Mengirim data form ke backend menggunakan Inertia
         post(route('reports.store'), {
-            forceFormData: true,
+            forceFormData: true, // Wajib untuk upload file
             onSuccess: () => {
-                alert('Laporan berhasil dikirim!');
-                reset();
-                setImagePreview(null);
+                alert('Laporan berhasil dikirim! Terima kasih atas partisipasi Anda.');
+                reset(); // Reset semua field form
+                setImagePreview(null); // Hapus preview gambar
+            },
+            onError: () => {
+                alert('Terjadi kesalahan. Mohon periksa kembali isian Anda.');
             },
         });
     };
@@ -127,32 +86,45 @@ const ReportForm = () => {
     return (
         <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
             <div className="mx-auto max-w-3xl space-y-8">
-                <div className="text-center">
+                <header className="text-center">
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Lapor Kerusakan Jalan</h1>
-                    <p className="mt-3 text-lg text-gray-600">Ambil foto kerusakan, dan biarkan AI kami menganalisisnya untuk Anda.</p>
-                </div>
+                    <p className="mt-3 text-lg text-gray-600">
+                        Bantu kami meningkatkan kualitas infrastruktur dengan melaporkan kerusakan yang Anda temukan.
+                    </p>
+                </header>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Card untuk Peta Lokasi */}
-                    <div className="rounded-xl border bg-white p-6 shadow-sm">
-                        <h3 className="mb-4 text-lg font-semibold text-gray-900">Langkah 1: Konfirmasi Lokasi Anda</h3>
-                        <div className="z-0 h-[300px] w-full overflow-hidden rounded-md">
-                            <MapContainer center={position} zoom={15} style={{ height: '100%', width: '100%' }}>
+                    {/* Card 1: Peta Lokasi */}
+                    <section className="rounded-xl border bg-white p-6 shadow-sm">
+                        <h3 className="mb-4 text-xl font-semibold text-gray-900">Langkah 1: Konfirmasi Lokasi Anda</h3>
+                        <div className="z-0 h-[300px] w-full overflow-hidden rounded-md border">
+                            <MapContainer center={position} zoom={15} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
                                 <TileLayer
                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 />
                                 <RecenterMap position={position} />
-                                <Marker position={position}>
-                                    <Popup>Perkiraan Lokasi Anda</Popup>
+                                <Marker
+                                    position={position}
+                                    draggable={true}
+                                    eventHandlers={{
+                                        dragend: (e) => {
+                                            const { lat, lng } = e.target.getLatLng();
+                                            setPosition([lat, lng]);
+                                            setData((currentData) => ({ ...currentData, latitude: lat, longitude: lng }));
+                                        },
+                                    }}
+                                >
+                                    <Popup>Geser pin ini jika lokasi kurang akurat.</Popup>
                                 </Marker>
                             </MapContainer>
                         </div>
-                    </div>
+                        <p className="mt-2 text-sm text-gray-500">Lokasi terdeteksi otomatis. Anda bisa menggeser pin di peta untuk menyesuaikan.</p>
+                    </section>
 
-                    {/* Card untuk Upload Gambar */}
-                    <div className="rounded-xl border bg-white p-6 shadow-sm">
-                        <h3 className="mb-4 text-lg font-semibold text-gray-900">Langkah 2: Unggah Foto Kerusakan</h3>
+                    {/* Card 2: Upload Gambar */}
+                    <section className="rounded-xl border bg-white p-6 shadow-sm">
+                        <h3 className="mb-4 text-xl font-semibold text-gray-900">Langkah 2: Unggah Foto Kerusakan</h3>
                         <div
                             className="mt-2 flex cursor-pointer justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 transition-colors hover:border-blue-500"
                             onClick={() => fileInputRef.current?.click()}
@@ -164,14 +136,14 @@ const ReportForm = () => {
                         >
                             <div className="text-center">
                                 {imagePreview ? (
-                                    <img src={imagePreview} alt="Preview" className="mx-auto h-48 w-auto rounded-md" />
+                                    <img src={imagePreview} alt="Preview Laporan" className="mx-auto h-48 w-auto rounded-md object-cover" />
                                 ) : (
                                     <>
                                         <FileImage className="mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
                                         <div className="mt-4 flex text-sm leading-6 text-gray-600">
                                             <span className="font-semibold text-blue-600">Klik untuk unggah</span>&nbsp;atau seret dan lepas
                                         </div>
-                                        <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF hingga 10MB</p>
+                                        <p className="text-xs leading-5 text-gray-600">PNG, JPG, JPEG (Maks. 5MB)</p>
                                     </>
                                 )}
                             </div>
@@ -179,96 +151,47 @@ const ReportForm = () => {
                                 ref={fileInputRef}
                                 type="file"
                                 className="sr-only"
-                                accept="image/*"
+                                accept="image/png, image/jpeg, image/jpg"
                                 onChange={(e: any) => handleFileChange(e.target.files?.[0])}
                             />
                         </div>
                         {errors.image && <p className="mt-2 text-sm text-red-600">{errors.image}</p>}
-                    </div>
+                    </section>
 
-                    {/* Card untuk Hasil Analisis AI */}
-                    <div className="rounded-xl border bg-white p-6 shadow-sm">
-                        <h3 className="mb-4 text-lg font-semibold text-gray-900">Langkah 3: Hasil Analisis AI</h3>
-                        {isPredicting ? (
-                            <div className="flex h-24 items-center justify-center">
-                                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                                <p className="ml-4 text-gray-600">Menganalisis gambar...</p>
+                    {/* Card 3: Detail Laporan */}
+                    <section className="rounded-xl border bg-white p-6 shadow-sm">
+                        <h3 className="mb-4 text-xl font-semibold text-gray-900">Langkah 3: Berikan Detail Laporan</h3>
+                        <div>
+                            <label htmlFor="description" className="block text-lg leading-6 font-semibold text-gray-900">
+                                Deskripsi Kerusakan
+                            </label>
+                            <div className="mt-2">
+                                <textarea
+                                    id="description"
+                                    name="description"
+                                    rows={4}
+                                    className="block w-full resize-none rounded-md border-0 px-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-blue-600 focus:ring-inset sm:leading-6"
+                                    placeholder="Contoh: Terdapat lubang besar dengan diameter sekitar 50cm di lajur kiri, sangat berbahaya bagi pengendara motor."
+                                    value={data.description}
+                                    onChange={(e) => setData((currentData) => ({ ...currentData, description: e.target.value }))}
+                                />
                             </div>
-                        ) : data.damage_type ? (
-                            <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-                                <div className="flex items-center space-x-3">
-                                    <Compass className="h-5 w-5 text-blue-600" />
-                                    <div>
-                                        <p className="text-gray-500">Lokasi</p>
-                                        <p className="font-medium text-gray-900">
-                                            {data.latitude.toFixed(5)}, {data.longitude.toFixed(5)}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                    <BrainCircuit className="h-5 w-5 text-blue-600" />
-                                    <div>
-                                        <p className="text-gray-500">Jenis Kerusakan</p>
-                                        <p className="font-medium text-gray-900 capitalize">{data.damage_type.replace('_', ' ')}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="20"
-                                        height="20"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        className="text-blue-600"
-                                    >
-                                        <path d="M21.5 13.67V12a10.15 10.15 0 0 0-1.2-4.83" />
-                                        <path d="M18.83 18.83a10.15 10.15 0 0 1-4.83 1.2V21.5" />
-                                        <path d="M12 10.15V2.5" />
-                                        <path d="M4.83 8.77a10.15 10.15 0 0 0-1.2 4.83V13" />
-                                        <path d="M8.77 18.83a10.15 10.15 0 0 0 4.83 1.2V21.5" />
-                                        <path d="M13 2.5V10.15" />
-                                        <path d="M2.5 13H10.15" />
-                                        <path d="M13.85 13H21.5" />
-                                        <path d="M18.83 4.83l-3.36 3.36" />
-                                        <path d="M8.77 8.77l-3.36-3.36" />
-                                        <path d="M15.23 15.23l3.36 3.36" />
-                                        <path d="M5.17 18.83l3.36-3.36" />
-                                    </svg>
-                                    <div>
-                                        <p className="text-gray-500">Tingkat Keparahan</p>
-                                        <p className="font-medium text-gray-900">{data.severity_score} / 10</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                    <AlarmClock className="h-5 w-5 text-blue-600" />
-                                    <div>
-                                        <p className="text-gray-500">Skor Urgensi</p>
-                                        <p className="font-medium text-gray-900">{data.urgency_score} / 10</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <p className="flex h-24 items-center justify-center text-center text-gray-500">
-                                Hasil analisis akan muncul di sini setelah gambar diunggah.
-                            </p>
-                        )}
-                    </div>
+                            {errors.description && <p className="mt-2 text-sm text-red-600">{errors.description}</p>}
+                            <p className="mt-2 text-sm text-gray-500">Jelaskan sedetail mungkin tentang kerusakan yang Anda lihat.</p>
+                        </div>
+                    </section>
 
                     {/* Tombol Submit */}
-                    <div className="border-t pt-4">
+                    <div className="border-t pt-6">
                         <button
                             type="submit"
-                            disabled={processing || isPredicting || !data.image}
+                            disabled={processing || !data.image || !data.description}
                             className="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-400"
                         >
                             {processing ? (
                                 <>
                                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                    Mengirim...
+                                    Mengirim Laporan...
                                 </>
                             ) : (
                                 'Kirim Laporan'
