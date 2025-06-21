@@ -15,11 +15,13 @@ export default function Welcome() {
             <Head title="Home" />
             <Navbar auth={auth} />
             <div className="flex flex-col justify-center px-[7%] py-36">
-                <div className="flex items-center justify-between gap-10 space-x-5">
+                <div className="flex flex-col items-center justify-between gap-10 space-x-5 xl:flex-row">
                     <img src="hero.png" alt="" width={580} />
                     <div>
                         <h1 className="text-lg font-bold tracking-[0.25rem] text-primary uppercase">Selamat Datang</h1>
-                        <h1 className="text-6xl font-bold text-foreground">Infrastar Bersama Kita Perbaiki Negeri</h1>
+                        <h1 className="text-6xl font-bold text-foreground max-lg:text-5xl max-md:text-4xl">
+                            Infrastar Bersama Kita Perbaiki Negeri
+                        </h1>
                         <p className="mt-3 mb-7 text-xl text-foreground">
                             Laporkan Infrastruktur rusak di sekitarmu dengan cepat dan mudah. Setiap laporanmu adalah langkah menuju infrastruktur
                             yang lebih baik.
@@ -29,7 +31,7 @@ export default function Welcome() {
                         </Link>
                     </div>
                 </div>
-                <div className="mt-20 flex items-center justify-center space-x-20">
+                <div className="mt-20 flex flex-wrap items-center justify-center space-x-20 max-lg:justify-start max-lg:space-y-3 max-lg:space-x-0">
                     <div className="flex items-center gap-5">
                         <TbMessageReportFilled className="size-18 text-primary" />
                         <h1 className="text-3xl font-bold text-foreground">
@@ -50,18 +52,15 @@ export default function Welcome() {
                     </div>
                 </div>
             </div>
-            {/* about */}
             <div className="bg-gradient-to-br from-primary to-[#0869CA] px-[7%] py-22 text-center text-white">
-                <h1 className="text-lg font-bold tracking-[0.25rem] uppercase" id="about">
-                    About
-                </h1>
-                <h1 className="text-5xl font-bold">Tentang Infrastar</h1>
+                <h1 className="text-lg font-bold tracking-[0.25rem] uppercase max-lg:text-base">About</h1>
+                <h1 className="text-5xl font-bold max-lg:text-4xl">Tentang Infrastar</h1>
                 <p className="mt-5 text-justify text-xl tracking-wide">
                     Infrastar adalah platform digital yang memudahkan masyarakat dalam melaporkan kerusakan infrastruktur. Dengan teknologi yang
                     sederhana namun efektif, kami menghubungkan suara warga dengan pihak berwenang agar penanganan dapat dilakukan lebih cepat dan
                     tepat sasaran.
                 </p>
-                <div className="mt-5 flex gap-20 text-left">
+                <div className="mt-5 flex gap-20 text-left max-lg:flex-col">
                     <img src="about.png" alt="" width={550} />
                     <div className="space-y-5">
                         <div>
@@ -94,15 +93,15 @@ export default function Welcome() {
                     </div>
                 </div>
             </div>
-            <div className="px-[7%] py-20 text-center" id="feature">
-                <h1 className="text-lg font-bold tracking-[0.25rem] text-primary uppercase">Feature</h1>
-                <h1 className="text-5xl font-bold text-foreground">Fitur Unggulan Infrastar</h1>
-                <p className="mt-3 text-center text-xl">
+            <div className="px-[7%] py-20 text-center max-lg:px-[3%]">
+                <h1 className="text-lg font-bold tracking-[0.25rem] text-primary uppercase max-lg:text-base">Feature</h1>
+                <h1 className="text-5xl font-bold text-foreground max-lg:text-4xl">Fitur Unggulan Infrastar</h1>
+                <p className="mt-3 mb-4 text-center text-xl">
                     Dirancang untuk mempermudah masyarakat melaporkan dan memantau kondisi infrastruktur, berikut
                     <br />
                     fitur-fitur utama yang tersedia di Infrastar:
                 </p>
-                <div className="px-[5%]">
+                <div className="space-y-5 px-[5%] max-lg:px-0">
                     <FeatureContainer
                         img="report.png"
                         header="Laporkan Infrastruktur Rusak Secara Instan"
