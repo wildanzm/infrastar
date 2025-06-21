@@ -19,7 +19,7 @@ class UserReportController extends Controller
 
         $reports->getCollection()->transform(function ($report) {
             $statusMap = [
-                'Menunggu' => 'Tertunda',
+                'Menunggu' => 'Menunggu',
                 'Dalam Proses' => 'Dalam Proses',
                 'Selesai' => 'Selesai',
             ];
@@ -28,7 +28,7 @@ class UserReportController extends Controller
                 'id' => $report->id,
                 'title' => $report->damage_type ?? 'Laporan Kerusakan',
                 'location' => $report->latitude . ', ' . $report->longitude,
-                'status' => $statusMap[$report->status] ?? 'Tertunda',
+                'status' => $statusMap[$report->status],
                 'created_at' => $report->created_at->toIso8601String(),
             ];
         });
