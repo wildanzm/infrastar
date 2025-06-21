@@ -3,7 +3,7 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/ui/Navbar';
 import { type SharedData } from '@/types';
-import { Head, usePage, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { FaRoad, FaUsers } from 'react-icons/fa';
 import { TbMessageReportFilled } from 'react-icons/tb';
 
@@ -12,20 +12,19 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title='Infrastar' />
+            <Head title="Infrastar" />
             <Navbar auth={auth} />
-            {/* hero */}
             <div className="flex flex-col justify-center px-[7%] py-36">
                 <div className="flex items-center justify-between gap-10 space-x-5">
                     <img src="hero.png" alt="" width={580} />
                     <div>
                         <h1 className="text-lg font-bold tracking-[0.25rem] text-primary uppercase">Selamat Datang</h1>
-                        <h1 className="text-6xl font-bold text-foreground">Infrastar: Bersama Kita Perbaiki Negeri</h1>
+                        <h1 className="text-6xl font-bold text-foreground">Infrastar Bersama Kita Perbaiki Negeri</h1>
                         <p className="mt-3 mb-7 text-xl text-foreground">
                             Laporkan jalan rusak di sekitarmu dengan cepat dan mudah. Setiap laporanmu adalah langkah menuju infrastruktur yang lebih
                             baik.
                         </p>
-                        <Link href='/report-form'>
+                        <Link href="/report-form">
                             <Button className="px-10 py-6 text-xl">Laporkan Sekarang</Button>
                         </Link>
                     </div>
@@ -93,7 +92,6 @@ export default function Welcome() {
                     </div>
                 </div>
             </div>
-            {/* feature */}
             <div className="px-[7%] py-20 text-center">
                 <h1 className="text-lg font-bold tracking-[0.25rem] text-primary uppercase">Feature</h1>
                 <h1 className="text-5xl font-bold text-foreground">Fitur Unggulan Infrastar</h1>
