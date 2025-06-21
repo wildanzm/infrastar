@@ -9,32 +9,32 @@ use Inertia\Inertia;
 
 class UserReportController extends Controller
 {
-   public function index()
-   {
-      $userId = Auth::id();
+    public function index()
+    {
+        $userId = Auth::id();
 
-      $reports = Report::where('user_id', $userId)
-         ->latest()
-         ->paginate(10);
+        $reports = Report::where('user_id', $userId)
+            ->latest()
+            ->paginate(10);
 
-      $reports->getCollection()->transform(function ($report) {
-         $statusMap = [
-            'pending' => 'Tertunda',
-            'in-progress' => 'Dalam Proses',
-            'resolved' => 'Selesai',
-         ];
+        $reports->getCollection()->transform(function ($report) {
+            $statusMap = [
+                'Menunggu' => 'Tertunda',
+                'Dalam Proses' => 'Dalam Proses',
+                'Selesai' => 'Selesai',
+            ];
 
-         return [
-            'id' => $report->id,
-            'title' => $report->damage_type ?? 'Laporan Kerusakan',
-            'location' => $report->latitude . ', ' . $report->longitude,
-            'status' => $statusMap[$report->status] ?? 'Tertunda',
-            'created_at' => $report->created_at->toIso8601String(),
-         ];
-      });
+            return [
+                'id' => $report->id,
+                'title' => $report->damage_type ?? 'Laporan Kerusakan',
+                'location' => $report->latitude . ', ' . $report->longitude,
+                'status' => $statusMap[$report->status] ?? 'Tertunda',
+                'created_at' => $report->created_at->toIso8601String(),
+            ];
+        });
 
-      return Inertia::render('Laporan/Index', [
-         'reports' => $reports,
-      ]);
-   }
+        return Inertia::render('Laporan/Index', [
+            'reports' => $reports,
+        ]);
+    }
 }

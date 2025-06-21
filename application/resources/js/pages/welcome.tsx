@@ -21,8 +21,8 @@ export default function Welcome() {
                         <h1 className="text-lg font-bold tracking-[0.25rem] text-primary uppercase">Selamat Datang</h1>
                         <h1 className="text-6xl font-bold text-foreground">Infrastar Bersama Kita Perbaiki Negeri</h1>
                         <p className="mt-3 mb-7 text-xl text-foreground">
-                            Laporkan Infrastruktur rusak di sekitarmu dengan cepat dan mudah. Setiap laporanmu adalah langkah menuju infrastruktur yang lebih
-                            baik.
+                            Laporkan Infrastruktur rusak di sekitarmu dengan cepat dan mudah. Setiap laporanmu adalah langkah menuju infrastruktur
+                            yang lebih baik.
                         </p>
                         <Link href="/report-form">
                             <Button className="px-10 py-6 text-xl">Laporkan Sekarang</Button>
@@ -52,12 +52,14 @@ export default function Welcome() {
             </div>
             {/* about */}
             <div className="bg-gradient-to-br from-primary to-[#0869CA] px-[7%] py-22 text-center text-white">
-                <h1 className="text-lg font-bold tracking-[0.25rem] uppercase">About</h1>
+                <h1 className="text-lg font-bold tracking-[0.25rem] uppercase" id="about">
+                    About
+                </h1>
                 <h1 className="text-5xl font-bold">Tentang Infrastar</h1>
                 <p className="mt-5 text-justify text-xl tracking-wide">
-                    Infrastar adalah platform digital yang memudahkan masyarakat dalam melaporkan kerusakan infrastruktur. Dengan
-                    teknologi yang sederhana namun efektif, kami menghubungkan suara warga dengan pihak berwenang agar penanganan dapat dilakukan
-                    lebih cepat dan tepat sasaran.
+                    Infrastar adalah platform digital yang memudahkan masyarakat dalam melaporkan kerusakan infrastruktur. Dengan teknologi yang
+                    sederhana namun efektif, kami menghubungkan suara warga dengan pihak berwenang agar penanganan dapat dilakukan lebih cepat dan
+                    tepat sasaran.
                 </p>
                 <div className="mt-5 flex gap-20 text-left">
                     <img src="about.png" alt="" width={550} />
@@ -92,7 +94,7 @@ export default function Welcome() {
                     </div>
                 </div>
             </div>
-            <div className="px-[7%] py-20 text-center">
+            <div className="px-[7%] py-20 text-center" id="feature">
                 <h1 className="text-lg font-bold tracking-[0.25rem] text-primary uppercase">Feature</h1>
                 <h1 className="text-5xl font-bold text-foreground">Fitur Unggulan Infrastar</h1>
                 <p className="mt-3 text-center text-xl">

@@ -224,7 +224,7 @@ const Reports: React.FC = () => {
                                         {report.status === 'Dalam Proses' && (
                                             <button
                                                 className="rounded-md bg-green-600 px-2 py-1 text-sm text-white hover:underline"
-                                                onClick={() => updateReportStatus(report.id, 'resolved')}
+                                                onClick={() => updateReportStatus(report.id, 'Selesai')}
                                             >
                                                 Selesai
                                             </button>

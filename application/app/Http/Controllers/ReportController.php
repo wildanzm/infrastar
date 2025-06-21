@@ -88,6 +88,6 @@ class ReportController extends Controller
             Log::error('Gagal mengirim email: ' . $e->getMessage());
         }
 
-        return redirect()->route('home')->with('success', 'Report submitted successfully.');
+        return redirect()->route(route: 'laporan.index')->with('success', 'Report submitted successfully.');
     }
 }
