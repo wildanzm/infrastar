@@ -69,7 +69,7 @@ class ReportController extends Controller
             'damage_type' => $prediction['classification_result'],
             'severity_score' => $prediction['Keparahan_Numerik'],
             'urgency_score' => $prediction['urgency_prediction'],
-            'status' => 'pending',
+            'status' => 'Menunggu',
         ]);
 
 

@@ -17,7 +17,6 @@ class DashboardStatsController extends Controller
             $dbDriver = DB::connection()->getDriverName();
             $startOfWeek = Carbon::now()->startOfWeek();
             $endOfWeek = Carbon::now()->endOfWeek();
-
             $newReportsThisWeek = Report::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
             $resolvedReportsThisWeek = Report::where('status', 'resolved')
                 ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
@@ -93,7 +92,9 @@ class DashboardStatsController extends Controller
                 'recentReports' => $recentReports,
             ]);
         } catch (\Exception $e) {
+
             Log::error('Dashboard Stats Error: ' . $e->getMessage());
+
             return response()->json([
                 'message' => 'Gagal memuat statistik dashboard.',
                 'error' => $e->getMessage(),

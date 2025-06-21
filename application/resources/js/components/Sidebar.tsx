@@ -1,4 +1,4 @@
-import { BarChart3, FileText, LayoutDashboard, Map, Settings, Users } from 'lucide-react';
+import { FileText, LayoutDashboard } from 'lucide-react';
 import React from 'react';
 
 interface SidebarProps {
@@ -11,11 +11,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, collapsed, setCollapsed }) => {
     const menuItems = [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { id: 'reports', label: 'Reports', icon: FileText },
-        { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-        { id: 'map', label: 'Map View', icon: Map },
-        { id: 'users', label: 'Users', icon: Users },
-        { id: 'settings', label: 'Settings', icon: Settings },
+        { id: 'reports', label: 'Laporan', icon: FileText },
     ];
 
     return (

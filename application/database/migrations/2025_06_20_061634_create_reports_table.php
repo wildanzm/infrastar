@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('damage_type')->nullable();
             $table->integer('severity_score')->nullable();
             $table->integer('urgency_score')->nullable();
-            $table->enum('status', ['pending', 'in_progress', 'resolved'])->default('pending');
+            $table->enum('status', ['Menunggu', 'Dalam Proses', 'Selesai'])->default('Menunggu');
             $table->timestamps();
         });
     }
