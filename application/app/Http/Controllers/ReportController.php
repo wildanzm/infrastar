@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-<<<<<<< HEAD
-=======
 use App\Models\User;
->>>>>>> c64694edc4af174e8dd30f03fb2a80668e57de81
-use Inertia\Inertia;
 use App\Models\Report;
+use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-<<<<<<< HEAD
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ReportMail;
+use App\Notifications\ReportSubmitted;
+use Illuminate\Support\Facades\Notification;
 
 class ReportController extends Controller
 {
@@ -32,66 +32,6 @@ class ReportController extends Controller
 
         return response()->json(['count' => $count]);
     }
-=======
-use App\Notifications\ReportSubmitted;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Mail; // <-- 1. Import fasad Mail
-use App\Mail\ReportMail;               // <-- 2. Import Mailable baru Anda
-
-class ReportController extends Controller
-{
-    // ... metode create() dan reportCount() tidak berubah ...
->>>>>>> c64694edc4af174e8dd30f03fb2a80668e57de81
-
-    public function store(Request $request)
-    {
-        // Validasi untuk form manual atau jika frontend yang mengirim data prediksi
-        $request->validate([
-            'image' => 'nullable|image',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'damage_type' => 'required|string',
-            'severity_score' => 'required|integer|min:0|max:100',
-            'urgency_score' => 'required|integer|min:1|max:100',
-        ]);
-
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('reports', 'public');
-        }
-
-<<<<<<< HEAD
-        Report::create([
-            'user_id' => Auth::id(),
-=======
-        $user = Auth::user();
-
-        $report = Report::create([
-            'user_id' => $user->id,
->>>>>>> c64694edc4af174e8dd30f03fb2a80668e57de81
-            'image' => $imagePath,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'damage_type' => $request->damage_type,
-            'severity_score' => $request->severity_score,
-            'urgency_score' => $request->urgency_score,
-            'status' => 'pending',
-        ]);
-
-        // --- MENGIRIM NOTIFIKASI ---
-
-        // Mengirim email konfirmasi ke pengguna secara eksplisit ke alamat emailnya
-        try {
-            Mail::to($user->email)->send(new ReportMail($report));
-        } catch (\Exception $e) {
-            Log::error('Gagal kirim email: ' . $e->getMessage());
-        }
-
-
-
-        return redirect()->route('home')->with('success', 'Report submitted successfully. A confirmation email has been sent.');
-
-    }
 
     /**
      * Store a new report by getting a prediction from the ML service first.
@@ -108,11 +48,12 @@ class ReportController extends Controller
         $imagePath = $request->file('image')->store('reports', 'public');
         $base64Image = base64_encode(file_get_contents($request->file('image')->getRealPath()));
 
-        // Get report count for the location
-        $reportCountResponse = $this->reportCount($request);
-        $reportCount = json_decode($reportCountResponse->getContent(), true)['count'];
+        // Ambil jumlah laporan di lokasi yang sama
+        $reportCount = Report::where('latitude', $request->latitude)
+            ->where('longitude', $request->longitude)
+            ->count();
 
-        // Call the prediction service
+        // Panggil service prediksi AI
         $predictionResponse = Http::post('http://localhost:5000/predict', [
             'image_base64' => $base64Image,
             'num_similar_reports' => $reportCount,
@@ -124,7 +65,7 @@ class ReportController extends Controller
 
         $prediction = $predictionResponse->json('prediction_results');
 
-        Report::create([
+        $report = Report::create([
             'user_id' => Auth::id(),
             'image' => $imagePath,
             'latitude' => $request->latitude,
@@ -134,6 +75,14 @@ class ReportController extends Controller
             'urgency_score' => $prediction['urgency_prediction'],
             'status' => 'pending',
         ]);
+
+        // Optional: Kirim email notifikasi
+        try {
+            $user = Auth::user();
+            Mail::to($user->email)->send(new ReportMail($report));
+        } catch (\Exception $e) {
+            Log::error('Gagal mengirim email: ' . $e->getMessage());
+        }
 
         return redirect()->route('dashboard')->with('success', 'Report submitted successfully.');
     }
