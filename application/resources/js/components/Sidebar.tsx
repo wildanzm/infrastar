@@ -21,7 +21,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, collapsed, s
                     <div className="flex items-center space-x-2">
                         <img src="logo.png" alt="" width={30} />
                         <div>
-                            <h1 className="text-xl font-bold text-gray-900">RoadReport</h1>
+                            <h1 className="text-xl font-bold text-gray-900">Infrastar</h1>
                             <p className="text-xs text-gray-500">Admin Dashboard</p>
                         </div>
                     </div>

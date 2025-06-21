@@ -17,14 +17,11 @@ class DashboardStatsController extends Controller
             $dbDriver = DB::connection()->getDriverName();
             $startOfWeek = Carbon::now()->startOfWeek();
             $endOfWeek = Carbon::now()->endOfWeek();
-
-
             $newReportsThisWeek = Report::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
             $resolvedReportsThisWeek = Report::where('status', 'resolved')
                 ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
                 ->count();
             $inProgressReports = Report::where('status', 'in-progress')->count();
-
 
             $topLocations = Report::select(
                 DB::raw("latitude || ', ' || longitude as location"),
@@ -36,7 +33,6 @@ class DashboardStatsController extends Controller
                 ->orderByDesc('total')
                 ->limit(3)
                 ->get();
-
 
             $resolvedReportsForTime = Report::where('status', 'resolved')->select('created_at', 'updated_at')->get();
             $totalHours = 0;
@@ -51,35 +47,38 @@ class DashboardStatsController extends Controller
                 $averageResponseTime = 0;
             }
 
-
             $monthFormat = $dbDriver === 'mysql' ? 'DATE_FORMAT(created_at, "%b")' : 'strftime("%b", created_at)';
-
             $reportsPerMonth = Report::select(
                 DB::raw($monthFormat . ' as name'),
                 DB::raw('count(*) as total')
             )
                 ->where('created_at', '>=', Carbon::now()->subYear())
                 ->groupBy('name')
-                ->orderByRaw('MIN(created_at)') // Urutkan berdasarkan bulan
+                ->orderByRaw('MIN(created_at)')
                 ->get();
 
-
-            $recentReports = Report::with('user:id,name')
+            $recentReports = Report::with('user:id,name') 
                 ->latest()
                 ->limit(5)
                 ->get()
                 ->map(function ($report) {
+                    $priority = 'Rendah';
+                    if ($report->urgency_score > 75) {
+                        $priority = 'Tinggi';
+                    } elseif ($report->urgency_score > 40) {
+                        $priority = 'Sedang';
+                    }
 
                     return [
                         'id' => $report->id,
-                        'title' => $report->damage_type ?? 'Laporan Tanpa Judul', // Menggunakan damage_type sebagai title
-                        'location' => $report->latitude . ', ' . $report->longitude,
-                        'status' => $report->status,
+                        'title' => $report->damage_type ?? 'Laporan Tanpa Judul',
+                        'location' => $report->latitude . ', ' . $report->longitude, // Lokasi daerahnya
+                        'status' => $report->status, // Statusnya
                         'created_at' => $report->created_at->toIso8601String(),
-                        'user' => $report->user,
+                        'user' => $report->user, // Nama pelapor ada di dalam objek user
+                        'priority' => $priority, // Prioritasnya
                     ];
                 });
-
 
             return response()->json([
                 'stats' => [
