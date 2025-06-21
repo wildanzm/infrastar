@@ -1,11 +1,12 @@
-import { Head, Link } from '@inertiajs/react';
+import Navbar from '@/components/ui/Navbar';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Clock, MapPin, PlusCircle } from 'lucide-react';
 
 type Report = {
     id: number;
     title: string;
     location: string;
-    status: 'Tertunda' | 'Dalam Proses' | 'Selesai';
+    status: 'Menunggu' | 'Dalam Proses' | 'Selesai';
     created_at: string;
 };
 
@@ -21,7 +22,6 @@ type LaporanPageProps = {
     reports: Paginator<Report>;
 };
 
-
 const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
         day: 'numeric',
@@ -35,18 +35,18 @@ const getStatusPill = (status: Report['status']) => {
     const colorClasses = {
         Selesai: 'bg-green-100 text-green-800',
         'Dalam Proses': 'bg-blue-100 text-blue-800',
-        Tertunda: 'bg-yellow-100 text-yellow-800',
+        Menunggu: 'bg-yellow-100 text-yellow-800',
     };
     return <span className={`${baseClasses} ${colorClasses[status]}`}>{status}</span>;
 };
 
 const LaporanPage = ({ reports }: LaporanPageProps) => {
-
+    const { auth } = usePage<ShareData>().props;
     return (
         <>
-            <Head title="Laporan Saya" />
-
-            <div className="bg-gray-50 py-12 sm:py-16">
+            <Head title="Daftar Laporan" />
+            <Navbar auth={auth} />
+            <div className="mt-14 bg-gray-50 py-12 sm:py-16">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
                     <header className="text-center">
                         <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Daftar Laporan Saya</h1>
@@ -111,10 +111,11 @@ const LaporanPage = ({ reports }: LaporanPageProps) => {
                                             <Link
                                                 key={index}
                                                 href={link.url || '#'}
-                                                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${link.active
+                                                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${
+                                                    link.active
                                                         ? 'bg-blue-600 text-white'
                                                         : 'text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50'
-                                                    } ${!link.url ? 'cursor-not-allowed text-gray-400 ring-gray-300' : ''}`}
+                                                } ${!link.url ? 'cursor-not-allowed text-gray-400 ring-gray-300' : ''}`}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                             />
                                         ))}

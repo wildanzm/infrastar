@@ -39,9 +39,9 @@ const Navbar = ({ auth }: NavbarProps) => {
             </div>
 
             <div className="hidden gap-6 text-lg font-semibold text-foreground md:flex">
-                <a href="#">Home</a>
-                <a href="#">About</a>
-                <a href="#">Feature</a>
+                <a href="/">Home</a>
+                <a href="/#about">About</a>
+                <a href="/#feature">Feature</a>
                 {auth.user && <a href={route('laporan.index')}>Laporan</a>}
             </div>
 
