@@ -7,64 +7,100 @@ use App\Models\Report;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DashboardStatsController extends Controller
 {
     public function __invoke()
     {
-        // Semua logika query tetap sama persis
-        $startOfWeek = Carbon::now()->startOfWeek();
-        $endOfWeek = Carbon::now()->endOfWeek();
+        try {
+            $dbDriver = DB::connection()->getDriverName();
+            $startOfWeek = Carbon::now()->startOfWeek();
+            $endOfWeek = Carbon::now()->endOfWeek();
 
-        $newReportsThisWeek = Report::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
-        $resolvedReportsThisWeek = Report::where('status', 'resolved')
-            ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
-            ->count();
-        $inProgressReportsThisWeek = Report::where('status', 'in-progress')
-            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
-            ->count();
+            // Statistik dasar
+            $newReportsThisWeek = Report::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count();
+            $resolvedReportsThisWeek = Report::where('status', 'resolved')
+                ->whereBetween('updated_at', [$startOfWeek, $endOfWeek])
+                ->count();
+            $inProgressReports = Report::where('status', 'in-progress')->count();
 
-        $topLocations = Report::select('location', DB::raw('count(*) as total'))
-            ->groupBy('location')
-            ->orderByDesc('total')
-            ->limit(3)
-            ->get();
+            // Top Locations (Fixed: Menggabungkan lat/lng untuk grouping)
+            // Di sini kita membuat kolom 'location' secara virtual untuk grouping
+            $topLocations = Report::select(
+                DB::raw("latitude || ', ' || longitude as location"),
+                DB::raw('count(*) as total')
+            )
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->groupBy('location')
+                ->orderByDesc('total')
+                ->limit(3)
+                ->get();
 
-        $averageResponseTime = Report::where('status', 'resolved')
-            ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, updated_at)) as avg_hours')
-            ->value('avg_hours');
+            // Average Response Time (Fixed: Dihitung di PHP agar DB-agnostic)
+            $resolvedReportsForTime = Report::where('status', 'resolved')->select('created_at', 'updated_at')->get();
+            $totalHours = 0;
+            if ($resolvedReportsForTime->isNotEmpty()) {
+                foreach ($resolvedReportsForTime as $report) {
+                    $createdAt = Carbon::parse($report->created_at);
+                    $updatedAt = Carbon::parse($report->updated_at);
+                    $totalHours += $createdAt->diffInHours($updatedAt);
+                }
+                $averageResponseTime = $resolvedReportsForTime->count() > 0 ? $totalHours / $resolvedReportsForTime->count() : 0;
+            } else {
+                $averageResponseTime = 0;
+            }
 
-        $reportsPerMonth = Report::select(
-            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
-            DB::raw('count(*) as total')
-        )
-            ->where('created_at', '>=', Carbon::now()->subMonths(6))
-            ->groupBy('month')
-            ->orderBy('month', 'asc')
-            ->get()
-            ->map(fn($item) => [
-                'name' => Carbon::createFromFormat('Y-m', $item->month)->format('M'),
-                'total' => $item->total,
+            // Chart Data (Fixed: Format tanggal DB-agnostic)
+            $monthFormat = $dbDriver === 'mysql' ? 'DATE_FORMAT(created_at, "%b")' : 'strftime("%b", created_at)';
+
+            $reportsPerMonth = Report::select(
+                DB::raw($monthFormat . ' as name'),
+                DB::raw('count(*) as total')
+            )
+                ->where('created_at', '>=', Carbon::now()->subYear())
+                ->groupBy('name')
+                ->orderByRaw('MIN(created_at)') // Urutkan berdasarkan bulan
+                ->get();
+
+            // Recent Reports (Fixed: Menyesuaikan struktur data dengan frontend)
+            $recentReports = Report::with('user:id,name')
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(function ($report) {
+                    // Membuat struktur yang sesuai dengan tipe `RecentReportItem` di frontend
+                    return [
+                        'id' => $report->id,
+                        'title' => $report->damage_type ?? 'Laporan Tanpa Judul', // Menggunakan damage_type sebagai title
+                        'location' => $report->latitude . ', ' . $report->longitude,
+                        'status' => $report->status,
+                        'created_at' => $report->created_at->toIso8601String(),
+                        'user' => $report->user,
+                    ];
+                });
+
+            // Final JSON Response
+            return response()->json([
+                'stats' => [
+                    'newThisWeek' => $newReportsThisWeek,
+                    'resolvedThisWeek' => $resolvedReportsThisWeek,
+                    'inProgress' => $inProgressReports,
+                    'avgResponseTime' => round($averageResponseTime, 1),
+                ],
+                'topLocations' => $topLocations,
+                'chartData' => $reportsPerMonth,
+                'recentReports' => $recentReports,
             ]);
-
-        $recentReports = Report::with('user:id,name')
-            ->latest()
-            ->limit(5)
-            ->get();
-
-        // **PERUBAHAN UTAMA DI SINI**
-        // Alih-alih `Inertia::render`, kita gunakan `response()->json()`
-        // Strukturnya kita buat sama persis agar mudah di-handle di frontend
-        return response()->json([
-            'stats' => [
-                'newThisWeek' => $newReportsThisWeek,
-                'resolvedThisWeek' => $resolvedReportsThisWeek,
-                'inProgress' => $inProgressReportsThisWeek,
-                'avgResponseTime' => round($averageResponseTime, 1) ?? 0,
-            ],
-            'topLocations' => $topLocations,
-            'chartData' => $reportsPerMonth,
-            'recentReports' => $recentReports,
-        ]);
+        } catch (\Exception $e) {
+            // Logging error untuk debugging di server
+            Log::error('Dashboard Stats Error: ' . $e->getMessage());
+            // Mengirim respons error yang jelas
+            return response()->json([
+                'message' => 'Gagal memuat statistik dashboard.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
