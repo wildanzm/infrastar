@@ -21,6 +21,6 @@ class ReportSubmitted extends Mailable
     public function build()
     {
         return $this->subject('Konfirmasi Laporan Anda')
-            ->view('emails.report'); // Pastikan view ini ADA
+            ->view('emails.report');
     }
 }
