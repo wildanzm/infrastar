@@ -20,7 +20,7 @@ const Chart: React.FC<ChartProps> = ({ data }) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Reports Trend</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Statistik</h3>
           <p className="text-gray-600 text-sm">Total laporan per bulan</p>
         </div>
         <BarChart3 className="w-5 h-5 text-gray-400" />
@@ -47,7 +47,7 @@ const Chart: React.FC<ChartProps> = ({ data }) => {
       <div className="flex items-center justify-center space-x-6 mt-4 pt-4 border-t border-gray-200">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-blue-500 rounded"></div>
-          <span className="text-sm text-gray-600">Total Reports</span>
+          <span className="text-sm text-gray-600">Total Laporan</span>
         </div>
       </div>
     </div>
