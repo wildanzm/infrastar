@@ -1,117 +1,93 @@
-import React from "react";
-import { Clock, MapPin, AlertTriangle } from "lucide-react";
+import { AlertTriangle, Clock, MapPin } from 'lucide-react';
+import React from 'react';
 
 type RecentReportItem = {
-  id: number;
-  title: string;
-  location: string;
-  damageType: string;
-  status: 'Pending' | 'Dalam Proses' | 'Selesai';
-  created_at: string;
-  user: {
     id: number;
-    name: string;
-  };
-  priority?: 'Tinggi' | 'Sedang' | 'Rendah';
+    title: string;
+    location: string;
+    damageType: string;
+    status: 'Tertunda' | 'Dalam Proses' | 'Selesai';
+    created_at: string;
+    user: {
+        id: number;
+        name: string;
+    };
+    priority?: 'Tinggi' | 'Sedang' | 'Rendah';
 };
 
 interface RecentReportsProps {
-  reports: RecentReportItem[];
+    reports: RecentReportItem[];
 }
 
 const formatTimeAgo = (dateString: string) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  let interval = seconds / 31536000;
-  if (interval > 1) return Math.floor(interval) + " tahun yang lalu";
-  interval = seconds / 2592000;
-  if (interval > 1) return Math.floor(interval) + " bulan yang lalu";
-  interval = seconds / 86400;
-  if (interval > 1) return Math.floor(interval) + " sehari yang lalu";
-  interval = seconds / 3600;
-  if (interval > 1) return Math.floor(interval) + " jam yang lalu";
-  interval = seconds / 60;
-  if (interval > 1) return Math.floor(interval) + " menit yang lalu";
-  return Math.floor(seconds) + " detik yang lalu";
-}
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + ' tahun yang lalu';
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + ' bulan yang lalu';
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + ' sehari yang lalu';
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + ' jam yang lalu';
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + ' menit yang lalu';
+    return Math.floor(seconds) + ' detik yang lalu';
+};
 
 const RecentReports: React.FC<RecentReportsProps> = ({ reports }) => {
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'Selesai':
+                return 'text-green-600 bg-green-50';
+            case 'Dalam Proses':
+                return 'text-blue-600 bg-blue-50';
+            case 'Pending':
+                return 'text-yellow-600 bg-yellow-50';
+            default:
+                return 'text-gray-600 bg-gray-50';
+        }
+    };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "Tinggi":
-        return "text-red-600 bg-red-50";
-      case "Sedang":
-        return "text-orange-600 bg-orange-50";
-      case "Rendah":
-        return "text-green-600 bg-green-50";
-      default:
-        return "text-gray-600 bg-gray-50";
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Selesai":
-        return "text-green-600 bg-green-50";
-      case "Dalam Proses":
-        return "text-blue-600 bg-blue-50";
-      case "Pending":
-        return "text-yellow-600 bg-yellow-50";
-      default:
-        return "text-gray-600 bg-gray-50";
-    }
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Laporan Terbaru</h3>
-        <AlertTriangle className="w-5 h-5 text-gray-400" />
-      </div>
-
-      <div className="space-y-4">
-        {reports.map((report) => (
-          <div
-            key={report.id}
-            className="border border-gray-100 rounded-lg p-4 hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-900">{report.user.name}</span>
-                {report.priority && (
-                  <span className={`px-2 py-1 text-xs rounded-full ${getPriorityColor(report.priority)}`}>
-                    {report.priority}
-                  </span>
-                )}
-              </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(report.status)}`}>
-                {report.status.replace('-', ' ')}
-              </span>
+    return (
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-6 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Laporan Terbaru</h3>
+                <AlertTriangle className="h-5 w-5 text-gray-400" />
             </div>
 
-            <p className="text-sm font-medium text-gray-900 mb-1">{report.title}</p>
-            <div className="flex items-center text-xs text-gray-500 space-x-4">
-              <div className="flex items-center space-x-1">
-                <MapPin className="w-3 h-3" />
-                <span>{report.location}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Clock className="w-3 h-3" />
-                <span>{formatTimeAgo(report.created_at)}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            <div className="space-y-4">
+                {reports.map((report) => (
+                    <div key={report.id} className="rounded-lg border border-gray-100 p-4 transition-colors hover:bg-gray-50">
+                        <div className="mb-2 flex items-start justify-between">
+                            <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium text-gray-900">{report.user.name}</span>
+                            </div>
+                            <span className={`rounded-full px-2 py-1 text-xs ${getStatusColor(report.status)}`}>
+                                {report.status.replace('-', ' ')}
+                            </span>
+                        </div>
 
-      <button className="w-full mt-4 text-sm text-blue-600 font-medium hover:text-blue-700 transition-colors">
-        Lihat Semua
-      </button>
-    </div>
-  );
+                        <p className="mb-1 text-sm font-medium text-gray-900">{report.damageType}</p>
+                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                            <div className="flex items-center space-x-1">
+                                <MapPin className="h-3 w-3" />
+                                <span>{report.location}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                                <Clock className="h-3 w-3" />
+                                <span>{formatTimeAgo(report.created_at)}</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <button className="mt-4 w-full text-sm font-medium text-blue-600 transition-colors hover:text-blue-700">Lihat Semua</button>
+        </div>
+    );
 };
 
 export default RecentReports;

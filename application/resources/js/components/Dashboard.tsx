@@ -1,4 +1,4 @@
-import { Activity, Calendar, MapPin } from 'lucide-react';
+import { Activity, Calendar } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import Chart from './ui/Chart';
 import RecentReports from './ui/RecentReports';
@@ -24,13 +24,12 @@ type RecentReportItem = {
     id: number;
     title: string;
     location: string;
-    status: 'pending' | 'in-progress' | 'resolved';
+    status: 'Tertunda' | 'Dalam Proses' | 'Selesai';
     created_at: string;
     user: {
         id: number;
         name: string;
     };
-    priority?: 'Tinggi' | 'Sedang' | 'Rendah';
 };
 
 type DashboardData = {
@@ -112,22 +111,6 @@ const Dashboard: React.FC = () => {
                         <p className="text-sm text-gray-500">Akumulasi dari laporan yang selesai</p>
                     </div>
                 </div>
-
-                <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-900">Lokasi Teratas</h3>
-                        <MapPin className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <div className="space-y-3">
-                        {data.topLocations.map((loc) => (
-                            <div key={loc.location} className="flex items-center justify-between">
-                                <span className="text-gray-600 capitalize">{loc.location}</span>
-                                <span className="rounded-full bg-red-100 px-2 py-1 text-xs text-red-800">{loc.total} Laporan</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
                 <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
                     <div className="mb-4 flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-gray-900">Minggu Ini</h3>
