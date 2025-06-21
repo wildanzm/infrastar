@@ -22,7 +22,7 @@ export default function Welcome() {
                         <h1 className="text-lg font-bold tracking-[0.25rem] text-primary uppercase">Selamat Datang</h1>
                         <h1 className="text-6xl font-bold text-foreground">Infrastar: Bersama Kita Perbaiki Negeri</h1>
                         <p className="mt-3 mb-7 text-xl text-foreground">
-                            Laporkan jalan rusak di sekitarmu dengan cepat dan mudah. Setiap laporanmu adalah langkah menuju infrastruktur yang lebih
+                            Laporkan Infrastruktur rusak di sekitarmu dengan cepat dan mudah. Setiap laporanmu adalah langkah menuju infrastruktur yang lebih
                             baik.
                         </p>
                         <Link href='/report-form'>
@@ -56,7 +56,7 @@ export default function Welcome() {
                 <h1 className="text-lg font-bold tracking-[0.25rem] uppercase">About</h1>
                 <h1 className="text-5xl font-bold">Tentang Infrastar</h1>
                 <p className="mt-5 text-justify text-xl tracking-wide">
-                    Infrastar adalah platform digital yang memudahkan masyarakat dalam melaporkan kerusakan infrastruktur, khususnya jalan. Dengan
+                    Infrastar adalah platform digital yang memudahkan masyarakat dalam melaporkan kerusakan infrastruktur. Dengan
                     teknologi yang sederhana namun efektif, kami menghubungkan suara warga dengan pihak berwenang agar penanganan dapat dilakukan
                     lebih cepat dan tepat sasaran.
                 </p>
@@ -87,7 +87,7 @@ export default function Welcome() {
                                 <p className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-white font-bold text-primary">
                                     3
                                 </p>
-                                <p>Menjadi jembatan antara warga dan pemerintah dalam penyelesaian masalah jalan rusak.</p>
+                                <p>Menjadi jembatan antara warga dan pemerintah dalam penyelesaian masalah infrastruktur rusak.</p>
                             </div>
                         </div>
                     </div>
@@ -105,8 +105,8 @@ export default function Welcome() {
                 <div className="px-[5%]">
                     <FeatureContainer
                         img="report.png"
-                        header="Laporkan Jalan Rusak Secara Instan"
-                        desc="Laporkan kondisi jalan rusak hanya dalam beberapa klik. Sertakan lokasi, deskripsi, dan foto untuk memudahkan penanganan."
+                        header="Laporkan Infrastruktur Rusak Secara Instan"
+                        desc="Laporkan kondisi infrastruktur rusak hanya dalam beberapa klik. Sertakan lokasi, deskripsi, dan foto untuk memudahkan penanganan."
                     />
                     <FeatureContainerReverse
                         img="map.png"
