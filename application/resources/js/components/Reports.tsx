@@ -6,14 +6,20 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 
 const Reports: React.FC = () => {
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [reports, setReports] = useState<any[]>([]);
 
     const fetchReports = async () => {
         try {
             const response = await axios.get('/api/reports');
-            setReports(response.data);
+
+            const reportsWithComments = response.data.reports.map((report: any) => ({
+                ...report,
+                comments: response.data.comments.filter((c: any) => c.report_id === report.id),
+            }));
+
+            setReports(reportsWithComments);
         } catch (error) {
             console.error('Error fetching reports:', error);
         }
@@ -129,6 +135,7 @@ const Reports: React.FC = () => {
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Lokasi</th>
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Gambar</th>
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Jenis Infrastruktur</th>
+                                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Deskripsi</th>
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Status</th>
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Prioritas</th>
                                 <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Aksi</th>
@@ -167,6 +174,18 @@ const Reports: React.FC = () => {
                                     </td>
 
                                     <td className="px-6 py-4 text-center">{report.damage_type || '-'}</td>
+                                    <td className="px-6 py-4 text-center">
+                                        {report.comments && report.comments.length > 0 ? (
+                                            report.comments.map((comment: any, idx: number) => (
+                                                <p key={idx} className="text-sm text-gray-700">
+                                                    {comment.comment_text}
+                                                </p>
+                                            ))
+                                        ) : (
+                                            <span className="text-gray-400 italic">Belum ada komentar</span>
+                                        )}
+                                    </td>
+
                                     <td className="px-6 py-4 text-center">
                                         <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(report.status)}`}>
                                             {report.status.replace('-', ' ')}
