@@ -12,7 +12,7 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title="Infrastar" />
+            <Head title="Home" />
             <Navbar auth={auth} />
             <div className="flex flex-col justify-center px-[7%] py-36">
                 <div className="flex items-center justify-between gap-10 space-x-5">
