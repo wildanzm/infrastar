@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ReportMail;
+use App\Http\Controllers\UserReportController;
 
 
 
@@ -27,6 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/report-form', [ReportController::class, 'storeWithPrediction'])->name('reports.store');
     Route::get('/report-count', [ReportController::class, 'reportCount'])->name('report.count');
 });
+
+Route::get('/laporan', [UserReportController::class, 'index'])
+    ->middleware(['auth', 'verified']) 
+    ->name('laporan.index'); 
 
 
 require __DIR__ . '/settings.php';

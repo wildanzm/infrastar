@@ -42,6 +42,7 @@ const Navbar = ({ auth }: NavbarProps) => {
                 <a href="#">Home</a>
                 <a href="#">About</a>
                 <a href="#">Feature</a>
+                {auth.user && <a href={route('laporan.index')}>Laporan</a>}
             </div>
 
             <div className="hidden items-center md:flex">
