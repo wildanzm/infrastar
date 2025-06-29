@@ -1,12 +1,10 @@
-# Infrastar
+# Infrastar: Infrastructure Damage Reporting and Management Platform
 
 A comprehensive platform for reporting and managing infrastructure damage, powered by a Laravel & React stack with an integrated Machine Learning model for damage assessment.
 
 ## About The Project
 
-Infrastar is a web application designed to empower citizens to report infrastructure damage (e.g., potholes, bridge issues) in their area. It provides a user-friendly interface for submitting reports with images and geolocations. On the other side, it offers an admin dashboard for authorities to manage, track, and analyze these reports efficiently.
-
-What sets Infrastar apart is its Machine Learning core, which automatically classifies the type of damage from an image and predicts an urgency score to help prioritize repairs.
+Infrastar is a comprehensive web application designed to facilitate the reporting and management of infrastructure damage. It empowers citizens to report issues like potholes and damaged bridges, while providing an administrative dashboard for authorities to efficiently track, manage, and analyze these reports. The platform leverages a Machine Learning model to automatically classify the type of damage and predict an urgency score, helping to prioritize repairs.
 
 ## Key Features
 
@@ -112,14 +110,9 @@ To get a local copy up and running, follow these steps.
     php artisan migrate --seed
     ```
 
-6.  **Install frontend dependencies:**
+6.  **Install and build frontend dependencies:**
     ```sh
-    npm install
-    ```
-
-6.  **Build frontend dependencies:**
-    ```sh
-    npm run build
+    npm install && npm run build
     ```
 
 7.  **Run the development server:**
@@ -157,11 +150,15 @@ The ML API runs on a separate Flask server.
 
 ## API Endpoints
 
-The core API endpoints are defined in `routes/api.php`.
+The core API endpoints are defined in `routes/api.php` and served by the Laravel application.
 
 * `GET /api/dashboard-stats`: Retrieves statistics for the admin dashboard.
 * `GET /api/reports`: Fetches all reports for the admin view.
 * `PUT /api/reports/{id}/status`: Updates the status of a specific report.
+
+The Machine Learning prediction endpoint is served by the Flask API:
+
+* `POST /predict`: Receives an image and other data to return a classification and urgency score.
 
 ## Contributing
 
