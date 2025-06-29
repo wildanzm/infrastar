@@ -170,5 +170,3 @@ Contributions are what make the open-source community such an amazing place to l
 This project uses GitHub Actions for continuous integration.
 * **Linting**: Code style is enforced using `prettier` and `eslint` for the frontend. Please run `npm run format` and `npm run lint` before committing.
 * **Testing**: Backend tests are run using Pest (PHPUnit). Please ensure all tests are passing.
-
-```
