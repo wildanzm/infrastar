@@ -1,169 +1,417 @@
-# Infrastar: Infrastructure Damage Reporting and Management Platform
+<div align="center">
 
-A comprehensive platform for reporting and managing infrastructure damage, powered by a Laravel & React stack with an integrated Machine Learning model for damage assessment.
+# InfraStar
 
-## About The Project
+**Smart Infrastructure Reporting & AI-Driven Prioritization System**
 
-Infrastar is a comprehensive web application designed to facilitate the reporting and management of infrastructure damage. It empowers citizens to report issues like potholes and damaged bridges, while providing an administrative dashboard for authorities to efficiently track, manage, and analyze these reports. The platform leverages a Machine Learning model to automatically classify the type of damage and predict an urgency score, helping to prioritize repairs.
+<!-- Frontend -->
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Inertia.js](https://img.shields.io/badge/Inertia.js-2.0-9553E9?style=for-the-badge&logo=inertia&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Radix UI](https://img.shields.io/badge/Radix_UI-161618?style=for-the-badge&logo=radixui&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=leaflet&logoColor=white)
 
-## Key Features
+<!-- Backend -->
+![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)
+![Composer](https://img.shields.io/badge/Composer-2.x-885630?style=for-the-badge&logo=composer&logoColor=white)
 
-* **User Authentication**: Secure user registration and login system with role-based access control (Admin & User).
-* **Damage Reporting System**: Users can easily submit reports including descriptions, photos, and precise geolocations via an interactive map.
-* **Admin Dashboard**: A comprehensive dashboard for administrators to view, manage, and update the status of reports.
-* **Interactive Map View**: All reports are visualized on a map, allowing for a geographical overview of infrastructure issues.
-* **Machine Learning Powered Analysis**:
-    * **Image Classification**: Automatically identifies the type of infrastructure (e.g., road, bridge) from the uploaded image.
-    * **Urgency Prediction**: A regression model calculates an urgency score based on the severity of the damage and the number of similar reports in the area.
-* **Email Notifications**: Users receive email confirmations upon successful report submission.
+<!-- Machine Learning -->
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=for-the-badge&logo=flask&logoColor=white)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)
+![Keras](https://img.shields.io/badge/Keras-D00000?style=for-the-badge&logo=keras&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white)
+
+<!-- Meta -->
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
+</div>
+
+InfraStar is a public infrastructure reporting and management platform. Citizens report damaged public facilities (such as potholes and broken bridges) with a photo and a map location. The system classifies the damage automatically with a computer-vision model and computes an **Urgency Score** (1–100) so that maintenance authorities can prioritize repairs.
+
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Repository Structure](#repository-structure)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [API Reference](#api-reference)
+- [Testing](#testing)
+- [Retraining the Models](#retraining-the-models)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+
+---
+
+## Features
+
+| Feature | Description |
+|---|---|
+| **AI visual classification** | A MobileNetV2-based CNN classifies uploaded photos into damage types (`jalan` = road, `jembatan` = bridge). |
+| **Smart urgency score** | A regression model produces a priority score (1–100) from physical severity and the number of similar reports at the same location. |
+| **Interactive geo-tagging** | Precise location selection with Leaflet and OpenStreetMap. |
+| **Email notifications** | Confirmation and status-update emails sent to the reporter via Laravel Mail. |
+| **Role-based access control** | Separate permissions for citizens (reporters) and officers/admins. |
+| **Monitoring dashboard** | Admins review, verify, and update report status: *Pending*, *In Progress*, *Completed*. |
+
+---
+
+## Architecture
+
+The system is split into two independently deployable services that communicate over HTTP.
+
+```
+ Citizen ──(photo + lat/long)──▶ Web Application
+                                 Laravel 12 · React 19 · Inertia.js
+                                          │
+                       (Base64 image + similar-report count)
+                                          ▼
+                                 ML Microservice (Flask)
+                                 ├─ Model 1: Damage classifier  (MobileNetV2, .h5)
+                                 └─ Model 2: Urgency predictor  (scikit-learn, .joblib)
+                                          │
+                          (classification + urgency score)
+                                          ▼
+                                 Database + Email dispatch
+```
+
+### Components
+
+| Service | Directory | Responsibility |
+|---|---|---|
+| Web application | `application/` | UI, authentication, authorization, report management, persistence, email |
+| ML microservice | `machine-learning/` | Image classification and urgency scoring |
+
+Separating inference from the web tier lets each service be scaled and versioned independently, and keeps heavy ML dependencies (TensorFlow) out of the PHP runtime.
+
+### Data Flow: Submitting a Report
+
+1. A citizen submits a photo and coordinates (latitude/longitude).
+2. The web application counts existing reports near the same location (`num_similar_reports`).
+3. It sends the Base64-encoded image and the count to `POST /predict`.
+4. The ML service decodes the image, runs Model 1 for the damage class and confidence, derives a numeric severity, then runs Model 2 to produce the urgency score.
+5. The web application stores the report with its predictions and sends a confirmation email.
+6. Officers see reports ordered by urgency and update their status. Each change emails the reporter.
+
+### Urgency Scoring
+
+The score combines **physical severity** (inferred from the image) and **report density** (number of similar reports at the same location). Higher severity and more independent reports both raise the score, so widely reported hazards rise in the queue.
+
+### Report Lifecycle
+
+```
+Pending ──▶ In Progress ──▶ Completed
+(Menunggu)  (Dalam Proses)   (Selesai)
+```
+
+### Design Decisions
+
+| Decision | Rationale | Trade-off |
+|---|---|---|
+| Inertia.js monolith | One codebase, no API versioning between UI and backend | UI is tightly coupled to Laravel |
+| Separate Flask ML service | Isolates TensorFlow, independent scaling | Extra network hop and deployment unit |
+| Transfer learning (MobileNetV2) | Good accuracy on small datasets, light inference | Limited to the trained classes |
+| Base64 image transport | Simple JSON contract | ~33% payload overhead |
+
+---
 
 ## Tech Stack
 
-The project is divided into two main parts: the web application and the machine learning API.
+**Web application (`/application`)**
 
-**1. Web Application (Application Folder)**
+- **Backend:** Laravel 12 (PHP 8.2+)
+- **Frontend:** React 19, Inertia.js v2, TypeScript
+- **Styling and UI:** Tailwind CSS v4, Radix UI, Lucide Icons
+- **Maps:** Leaflet.js and React-Leaflet
+- **Auth:** Laravel Sanctum, Spatie Permission
+- **Email:** Laravel Mail (SMTP or `log` driver)
 
-* **Backend**:
-    * PHP 8.2+
-    * Laravel 12
-    * Spatie Laravel Permission (for roles & permissions)
-    * Inertia.js
-* **Frontend**:
-    * React 19
-    * Vite
-    * Tailwind CSS
-    * shadcn/ui (for UI components)
-    * Leaflet.js (for interactive maps)
+**Machine learning service (`/machine-learning`)**
 
-**2. Machine Learning API (Machine-Learning Folder)**
+- **API server:** Flask (Python 3.10+) with Flask-CORS
+- **Image classification:** MobileNetV2 transfer learning (`model1.h5`)
+- **Urgency regression:** scikit-learn model (`model2.joblib`)
+- **Preprocessing:** Pillow, NumPy, Pandas
 
-* **Framework**: Flask
-* **ML Libraries**:
-    * TensorFlow (Keras) for image classification.
-    * Scikit-learn & Joblib for the urgency prediction model.
-* **Language**: Python
+---
 
-## Project Structure
-
-The repository is organized into two main directories:
+## Repository Structure
 
 ```
-.
-├── application/         # Contains the main Laravel + React web application
-│   ├── app/             # Laravel core (Controllers, Models, etc.)
-│   ├── config/          # Configuration files
-│   ├── database/        # Migrations and seeders
-│   ├── resources/
-│   │   ├── js/          # React source code (Pages, Components, Layouts)
-│   │   └── views/       # Blade templates
-│   ├── routes/          # API and Web routes
-│   └── ...
-│
-├── machine-learning/    # Contains the Python-based ML API and models
-│   ├── dataset/         # Datasets for training
-│   ├── model1.ipynb     # Jupyter Notebook for the image classification model
-│   ├── model2.ipynb     # Jupyter Notebook for the urgency regression model
-│   ├── model1.h5        # Saved Keras model for classification
-│   ├── model2.joblib    # Saved Joblib model for urgency prediction
-│   └── apiml.py         # Flask API to serve the models
-└── ...
+infrastar/
+├── application/              # Laravel + React (Inertia) web application
+│   ├── app/                  # Controllers, models, mailables, middleware
+│   ├── config/               # Application and service configuration
+│   ├── database/             # Migrations and seeders
+│   ├── resources/            # React pages, components, styles
+│   ├── routes/               # Web, API, auth, and settings routes
+│   ├── composer.json         # PHP dependencies
+│   └── package.json          # Node.js dependencies
+└── machine-learning/         # Flask ML microservice
+    ├── apiml.py              # REST API (POST /predict)
+    ├── model1.h5             # Damage classification model (CNN)
+    ├── model2.joblib         # Urgency prediction model
+    ├── class_names.json      # Class labels ("jalan", "jembatan")
+    ├── model_1.ipynb         # Training notebook, Model 1
+    ├── model_2.ipynb         # Training notebook, Model 2
+    └── dataset/              # Training and validation data
 ```
+
+---
 
 ## Getting Started
 
-To get a local copy up and running, follow these steps.
-
 ### Prerequisites
 
-* PHP >= 8.2
-* Composer
-* Node.js & npm
-* Python 3.x
-* A database server (e.g., MySQL, PostgreSQL, or SQLite)
+| Tool | Minimum version |
+|---|---|
+| PHP | 8.2 |
+| Composer | 2.x |
+| Node.js and npm | 18.x |
+| Python and pip | 3.10 |
 
-### 1. Web Application Setup
+Start the ML service **first**; the web application depends on it for report analysis.
 
-1.  **Navigate to the application directory:**
-    ```sh
-    cd application
-    ```
+### 1. Machine Learning Service
 
-2.  **Install PHP dependencies:**
-    ```sh
-    composer install
-    ```
+```bash
+cd machine-learning
 
-3.  **Create and configure your environment file:**
-    ```sh
-    cp .env.example .env
-    ```
-    *Update your database credentials and other settings in the `.env` file.*
+# (Recommended) create a virtual environment
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
 
-4.  **Generate an application key:**
-    ```sh
-    php artisan key:generate
-    ```
+pip install flask flask-cors numpy pandas joblib pillow keras tensorflow scikit-learn
 
-5.  **Run database migrations and seeders:**
-    *This will create the necessary tables and populate the admin/user roles.*
-    ```sh
-    php artisan migrate --seed
-    ```
+python apiml.py                 # Serves on http://localhost:5000
+```
 
-6.  **Install and build frontend dependencies:**
-    ```sh
-    npm install && npm run build
-    ```
+### 2. Web Application
 
-7.  **Run the development server:**
-    *This command will start the Vite server for the frontend and the PHP development server for the backend.*
-    ```sh
-    npm run dev
-    ```
+```bash
+cd application
 
-### 2. Machine Learning API Setup
+composer install
+npm install
 
-The ML API runs on a separate Flask server.
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
+```
 
-1.  **Navigate to the machine-learning directory:**
-    ```sh
-    cd machine-learning
-    ```
+Run the servers in two terminals:
 
-2.  **It is highly recommended to use a virtual environment:**
-    ```sh
-    python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-    ```
+```bash
+# Terminal 1
+php artisan serve               # http://localhost:8000
 
-3.  **Install Python dependencies:**
-    *(You may need to create a `requirements.txt` file from the imported libraries in `apiml.py` and `*.ipynb` files, such as Flask, TensorFlow, Scikit-learn, pandas, numpy, Pillow).*
-    ```sh
-    pip install Flask Flask-Cors tensorflow scikit-learn pandas numpy Pillow joblib
-    ```
+# Terminal 2
+npm run dev                     # Vite dev server
+```
 
-4.  **Run the Flask API server:**
-    ```sh
-    python apiml.py
-    ```
-    The API will be available at `http://localhost:5000`.
+---
 
-## API Endpoints
+## Configuration
 
-The core API endpoints are defined in `routes/api.php` and served by the Laravel application.
+### Web application (`application/.env`)
 
-* `GET /api/dashboard-stats`: Retrieves statistics for the admin dashboard.
-* `GET /api/reports`: Fetches all reports for the admin view.
-* `PUT /api/reports/{id}/status`: Updates the status of a specific report.
+| Variable | Description | Example |
+|---|---|---|
+| `APP_NAME` | Application name | `InfraStar` |
+| `APP_ENV` | Environment | `local` |
+| `APP_KEY` | Generated by `php artisan key:generate` | |
+| `APP_URL` | Base URL | `http://localhost:8000` |
+| `DB_CONNECTION` | Database driver | `sqlite` / `mysql` |
+| `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | Database credentials (non-SQLite) | |
+| `MAIL_MAILER` | `smtp` or `log` | `log` |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` | SMTP credentials | |
+| `MAIL_FROM_ADDRESS` | Sender address | `no-reply@example.com` |
 
-The Machine Learning prediction endpoint is served by the Flask API:
+> **Note:** Confirm the exact variable or config key that stores the ML service URL (for example `ML_SERVICE_URL=http://localhost:5000`) in `application/config/` and `.env.example`, and list it here.
 
-* `POST /predict`: Receives an image and other data to return a classification and urgency score.
+With `MAIL_MAILER=log`, emails are written to `storage/logs/laravel.log` instead of being sent.
 
-## Contributing
+### ML service
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+The service listens on port `5000`. These files must be present in `machine-learning/`: `model1.h5`, `model2.joblib`, `class_names.json`.
 
-This project uses GitHub Actions for continuous integration.
-* **Linting**: Code style is enforced using `prettier` and `eslint` for the frontend. Please run `npm run format` and `npm run lint` before committing.
-* **Testing**: Backend tests are run using Pest (PHPUnit). Please ensure all tests are passing.
+---
+
+## Usage
+
+1. Open `http://localhost:8000` and sign in or register.
+2. **Citizen:** create a report, upload a photo, and pin the location on the map.
+3. The application sends the image to the ML service and stores the predicted damage type and urgency score with the report.
+4. **Officer/Admin:** open the dashboard, review reports sorted by urgency, and update their status. The reporter is notified by email on each change.
+
+---
+
+## API Reference
+
+The ML service exposes one endpoint. It has no authentication by default, so do not expose it publicly.
+
+**Base URL (local):** `http://localhost:5000`
+
+### `POST /predict`
+
+Classifies an infrastructure damage image and predicts its urgency score.
+
+**Request** (`Content-Type: application/json`)
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `image_base64` | string | Yes | Base64-encoded image. A data-URI prefix (`data:image/jpeg;base64,`) is accepted. |
+| `num_similar_reports` | integer | Yes | Number of existing reports at the same location. |
+
+```json
+{
+  "image_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
+  "num_similar_reports": 3
+}
+```
+
+**Response: `200 OK`**
+
+```json
+{
+  "success": true,
+  "message": "Prediction successful",
+  "prediction_results": {
+    "classification_result": "jalan",
+    "confidence": 98,
+    "Keparahan_Numerik": 2,
+    "urgency_prediction": 85
+  }
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `success` | boolean | `true` when the prediction succeeded. |
+| `message` | string | Human-readable status. |
+| `prediction_results.classification_result` | string | Predicted class: `jalan` (road) or `jembatan` (bridge). |
+| `prediction_results.confidence` | number | Classifier confidence (percent). |
+| `prediction_results.Keparahan_Numerik` | integer | Numeric severity level derived from the image. |
+| `prediction_results.urgency_prediction` | number | Urgency score from 1 to 100. Higher means more urgent. |
+
+**Errors** (recommended convention; verify against `apiml.py`)
+
+| Status | Meaning |
+|---|---|
+| `400 Bad Request` | Missing or malformed field, or undecodable image |
+| `500 Internal Server Error` | Model loading or inference failure |
+
+```json
+{ "success": false, "message": "Description of the error" }
+```
+
+**Examples**
+
+<details>
+<summary>cURL</summary>
+
+```bash
+IMG=$(base64 -w0 pothole.jpg)   # macOS: base64 -i pothole.jpg
+
+curl -X POST http://localhost:5000/predict \
+  -H "Content-Type: application/json" \
+  -d "{\"image_base64\": \"data:image/jpeg;base64,${IMG}\", \"num_similar_reports\": 3}"
+```
+</details>
+
+<details>
+<summary>Python</summary>
+
+```python
+import base64, requests
+
+with open("pothole.jpg", "rb") as f:
+    encoded = base64.b64encode(f.read()).decode()
+
+resp = requests.post(
+    "http://localhost:5000/predict",
+    json={
+        "image_base64": f"data:image/jpeg;base64,{encoded}",
+        "num_similar_reports": 3,
+    },
+    timeout=30,
+)
+resp.raise_for_status()
+print(resp.json()["prediction_results"])
+```
+</details>
+
+<details>
+<summary>PHP (Laravel HTTP client)</summary>
+
+```php
+use Illuminate\Support\Facades\Http;
+
+$response = Http::timeout(30)->post(config('services.ml.url') . '/predict', [
+    'image_base64'        => 'data:image/jpeg;base64,' . base64_encode($contents),
+    'num_similar_reports' => $count,
+]);
+
+$results = $response->json('prediction_results');
+```
+</details>
+
+---
+
+## Testing
+
+```bash
+# Backend
+cd application
+php artisan test
+
+# Frontend (if configured in package.json)
+npm run types
+npm run lint
+```
+
+Smoke-test the ML service on its own with the cURL example in the [API Reference](#api-reference).
+
+---
+
+## Retraining the Models
+
+1. Prepare data under `machine-learning/dataset/`.
+2. Open `model_1.ipynb` (classifier) or `model_2.ipynb` (urgency predictor).
+3. Run all cells and export to `model1.h5` or `model2.joblib`.
+4. Update `class_names.json` if the label set changes.
+5. Restart the ML service and re-verify `/predict`.
+
+Record the dataset version and evaluation metrics for each retrained model in the [Changelog](#changelog).
+
+---
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Report creation fails or hangs | ML service not running | Start `apiml.py` and check the configured URL |
+| `ModuleNotFoundError: tensorflow` | Dependencies missing in the active venv | Re-activate the venv and re-run `pip install` |
+| Uploaded images return 404 | Storage link missing | `php artisan storage:link` |
+| Blank page or missing assets | Vite not running | `npm run dev` |
+| No emails received | `MAIL_MAILER=log` | Read `storage/logs/laravel.log` or configure SMTP |
+| CORS errors in the browser | Origin not allowed in Flask-CORS | Adjust the CORS configuration |
+| TensorFlow fails to install | Unsupported Python version | Use Python 3.10–3.11 |
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE).
